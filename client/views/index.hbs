@@ -1,0 +1,74 @@
+<html>
+<head>
+    <style>
+        .video {
+            width: 360px;
+            background-color: black;
+            margin: 2px 0;
+        }
+
+        button {
+            margin: 2px;
+        }
+
+        .sharedBtns {
+            padding: 5px;
+            background-color: papayawhip;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+<span> produce: 1,2,3,4,5</span>
+<span> consume: 2,3,6,7</span>
+<div id="video">
+    <div class="sharedBtns">
+        <h4>Local Video</h4>
+        <video id="localVideo" autoplay class="video"></video>
+    </div>
+
+    <div class="sharedBtns">
+        <h4>Remote Video</h4>
+        <video id="remoteVideo" autoplay class="video"></video>
+    </div>
+
+    <div class="sharedBtns">
+        <button id="btnLocalVideo">1. Get Local Video</button>
+    </div>
+
+    <div class="sharedBtns consumeBtn">
+        <button id="btnRtpCapabilities">2. Get Rtp Capabilities</button>
+    </div>
+
+    <div class="sharedBtns consumeBtn">
+        <button id="btnDevice">3. Create Device</button>
+    </div>
+
+    <div class="sharedBtns">
+        <button id="btnCreateSendTransport">4. Create Send Transport</button>
+    </div>
+
+    <div class="sharedBtns">
+        <button id="btnConnectSendTransport">5. Connect Send Transport & Produce</button>
+    </div>
+
+    <div class="sharedBtns consumeBtn">
+        <button id="btnRecvSendTransport">6. Create Recv Transport</button>
+    </div>
+
+    <div class="sharedBtns consumeBtn">
+        <button id="btnConnectRecvTransport">7. Connect Recv Transport & Consume</button>
+    </div>
+    <hr>
+    <div>
+        <button id="btnStartProduce">Start Produce</button>
+        <button id="btnStartConsume">Start Consume</button>
+    </div>
+</div>
+</body>
+<footer>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/bundle.js"></script>
+</footer>
+</html>
