@@ -1,4 +1,6 @@
 mediasoup:
+  resourceInterval: 10000
+  resourceLogLevel: short
   workerPool: 2
   worker:
     rtcMinPort: 10000

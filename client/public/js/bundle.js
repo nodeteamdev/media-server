@@ -2759,7 +2759,7 @@ const setProduceVideo = (stream, callback) => {
         ...app.producerOptions,
     };
 
-    if (callback) {
+    if (typeof callback === 'function') {
         callback();
     }
 };
@@ -2782,7 +2782,7 @@ const getLocalStream = (callback) => {
             },
         },
     }, (stream) => {
-        if (callback) {
+        if (typeof callback === 'function') {
             return callback(stream);
         }
         return setProduceVideo(stream);
@@ -2797,7 +2797,7 @@ const getRtpCapabilities = (callback) => {
 
         console.log('app.rtpCapabilities', app.rtpCapabilities);
 
-        if (callback) {
+        if (typeof callback === 'function') {
             callback();
         }
     });
@@ -2812,7 +2812,7 @@ const createDevice = async (callback) => {
 
     console.log(' app.device', app.device);
 
-    if (callback) {
+    if (typeof callback === 'function') {
         callback();
     }
 };
@@ -2851,7 +2851,7 @@ const createSendTransport = (callback) => {
             }
         });
 
-        if (callback) {
+        if (typeof callback === 'function') {
             callback();
         }
     });
@@ -2892,7 +2892,7 @@ const createRecvTransport = (callback) => {
             }
         });
 
-        if (callback) {
+        if (typeof callback === 'function') {
             callback();
         }
     });

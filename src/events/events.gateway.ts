@@ -67,6 +67,37 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             this.logger.error(error);
             setTimeout(() => process.exit(1), 2000);
         });
+
+        this.getResourceUsage(this.worker);
+    }
+
+    private getResourceUsage(worker) {
+        const mediasoupSettings = this.configService.get('mediasoup');
+
+        setInterval(() => {
+            worker.getResourceUsage().then((data) => {
+                if (mediasoupSettings.resourceLogLevel === 'short') {
+                    this.logger.debug(data);
+                } else {
+                    this.logger.debug(`integral unshared data size 'ru_idrss':${data.ru_idrss}`);
+                    this.logger.debug(`block input operations 'ru_inblock':${data.ru_inblock}`);
+                    this.logger.debug(`integral unshared stack size 'ru_isrss':${data.ru_isrss}`);
+                    this.logger.debug(`integral shared memory size 'ru_ixrss': ${data.ru_ixrss}`);
+                    this.logger.debug(`page faults (hard page faults) 'ru_majflt': ${data.ru_majflt}`);
+                    this.logger.debug(`maximum resident set size 'ru_maxrss':${data.ru_maxrss}`);
+                    this.logger.debug(`page reclaims (soft page faults) 'ru_minflt':${data.ru_minflt}`);
+                    this.logger.debug(`IPC messages received 'ru_msgrcv': ${data.ru_msgrcv}`);
+                    this.logger.debug(`IPC messages sent 'ru_msgsnd':${data.ru_msgsnd}`);
+                    this.logger.debug(`involuntary context switches 'ru_nivcsw':${data.ru_nivcsw}`);
+                    this.logger.debug(`signals received 'ru_nsignals':${data.ru_nsignals}`);
+                    this.logger.debug(`swaps 'ru_nswap':${data.ru_nswap}`);
+                    this.logger.debug(` voluntary context switches 'ru_nvcsw':${data.ru_nvcsw}`);
+                    this.logger.debug(`block output operations 'ru_oublock':${data.ru_oublock}`);
+                    this.logger.debug(`system CPU time used 'ru_stime':${data.ru_stime}`);
+                    this.logger.debug(`user CPU time used 'ru_utime':${data.ru_utime}`);
+                }
+            });
+        }, mediasoupSettings.resourceInterval);
     }
 
     @SubscribeMessage('events')
