@@ -8,3 +8,4 @@
 !package.json/
 !tsconfig.build.json/
 !tsconfig.json/
+!ecosystem.config.js/

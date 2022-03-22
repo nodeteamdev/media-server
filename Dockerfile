@@ -36,4 +36,4 @@ EXPOSE 2000-2020
 
 EXPOSE 3000
 
-CMD ["pm2", "start"]
+CMD ["node", "dist/main", "--hostname", "0.0.0.0"]

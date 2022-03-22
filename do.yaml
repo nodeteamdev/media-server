@@ -1,0 +1,31 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+name: checha-media-server
+region: fra
+services:
+- envs:
+  - key: NODE_ENV
+    scope: RUN_AND_BUILD_TIME
+    value: production
+  - key: REDIS_URL
+    scope: RUN_AND_BUILD_TIME
+    value: redis://redis-11668.c258.us-east-1-4.ec2.cloud.redislabs.com:11668
+  - key: REDIS_PASSWORD
+    scope: RUN_AND_BUILD_TIME
+    value: C3EJHyjoVUK5J5IMmRddznRWYPLFSjRj
+  - key: PIDUSAGE_USE_PS
+    scope: RUN_AND_BUILD_TIME
+    value: "true"
+  http_port: 3000
+  image:
+    registry: checha
+    registry_type: DOCKER_HUB
+    repository: media-server
+    tag: latest
+  instance_count: 2
+  instance_size_slug: professional-xs
+  name: checha-media-server
+  routes:
+  - path: /
+  source_dir: /

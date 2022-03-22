@@ -7,20 +7,8 @@ import { RedisIoAdapter } from './adapters/redis-io.adapter';
 
 const PORT = process.env.PORT || 3000;
 
-const httpsOptions = (() => {
-    if (process.env.NODE_ENV === 'production') {
-        return {};
-    }
-    return {
-        key: readFileSync(join(__dirname, '..', '/secrets/localhost.key'), 'utf8'),
-        cert: readFileSync(join(__dirname, '..', '/secrets/localhost.crt'), 'utf8'),
-    };
-})();
-
 (async function bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-        httpsOptions,
-    });
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
     app.setBaseViewsDir(join(__dirname, '..', 'client', 'views'));
     app.setViewEngine('hbs');
@@ -30,7 +18,7 @@ const httpsOptions = (() => {
 
     app.useWebSocketAdapter(redisIoAdapter);
 
-    await app.listen(PORT, () => {
+    await app.listen(PORT, '0.0.0.0', () => {
         console.log(`APP started on port ${PORT}`);
     });
 }());
