@@ -32,7 +32,6 @@
     "@socket.io/redis-adapter": "^7.1.0",
     "hbs": "^4.2.0",
     "js-yaml": "^4.1.0",
-    "mediasoup": "^3.9.9",
     "mediasoup-client": "^3.6.50",
     "redis": "^4.0.4",
     "reflect-metadata": "^0.1.13",

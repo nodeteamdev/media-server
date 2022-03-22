@@ -54,6 +54,9 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     async createWorkers() {
         const mediasoupSettings = this.configService.get('mediasoup');
 
+        this.logger.debug('Create Mediasoup worker with next config');
+        this.logger.debug(mediasoupSettings);
+
         this.worker = await mediasoup.createWorker(mediasoupSettings.worker);
         this.router = await this.worker.createRouter({
             mediaCodecs: mediasoupSettings.router.mediaCodecs,
@@ -219,8 +222,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         return {
             listenIps: [
                 {
-                    ip: '127.0.0.1', // replace with relevant IP address
-                    // announcedIp: '127.0.0.1',
+                    ip: '0.0.0.0',
+                    announcedIp: '127.0.0.1',
                 },
             ],
             enableUdp: true,
