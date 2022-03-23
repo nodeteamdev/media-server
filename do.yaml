@@ -24,6 +24,8 @@ services:
     repository: media-server
     tag: latest
   instance_count: 2
+  health_check:
+    initial_delay_seconds: 10
   instance_size_slug: professional-xs
   name: checha-media-server
   routes:

@@ -9,6 +9,7 @@ import {
     OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { from, Observable } from 'rxjs';
+import * as ip from 'ip';
 import * as mediasoup from 'mediasoup';
 import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
@@ -71,10 +72,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             setTimeout(() => process.exit(1), 2000);
         });
 
-        this.getResourceUsage(this.worker);
+        this.getLogResourceUsage(this.worker);
     }
 
-    private getResourceUsage(worker) {
+    private getLogResourceUsage(worker) {
         const mediasoupSettings = this.configService.get('mediasoup');
 
         setInterval(() => {
@@ -223,7 +224,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             listenIps: [
                 {
                     ip: '0.0.0.0',
-                    announcedIp: '127.0.0.1',
+                    announcedIp: ip.address(),
                 },
             ],
             enableUdp: true,

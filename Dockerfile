@@ -22,13 +22,18 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y \
  nodejs
 
-COPY . .
+RUN npm install -g @nestjs/cli
 
-RUN npm install -g @nestjs/cli pm2
+COPY package.json /tmp/package.json
 
-RUN PYTHON=python3.9 npm install mediasoup@3
+RUN cd /tmp && npm install && PYTHON=python3.9 npm install mediasoup@3
 
-RUN npm install && npm run build
+RUN mkdir -p /opt/app && cp -a /tmp/node_modules /opt/app/
+
+WORKDIR /opt/app
+COPY . /opt/app
+
+RUN npm run build
 
 EXPOSE 10000-10100
 
@@ -36,4 +41,4 @@ EXPOSE 2000-2020
 
 EXPOSE 3000
 
-CMD ["node", "dist/main", "--hostname", "0.0.0.0"]
+CMD ["node", "dist/main.js", "--hostname", "0.0.0.0"]
