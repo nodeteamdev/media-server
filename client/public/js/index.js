@@ -14,7 +14,7 @@ const app = {
     producerTransport: null,
     consumerTransport: null,
     producerOptions: {
-        encodings: [
+        /*encodings: [
             {
                 rid: 'r0',
                 maxBitrate: 100000,
@@ -26,11 +26,11 @@ const app = {
                 scalabilityMode: 'S1T3',
             },
             {
-                rid: 'r2',
+                rid: 'r0',
                 maxBitrate: 900000,
                 scalabilityMode: 'S1T3',
             },
-        ],
+        ],*/
         codecOptions: {
             videoGoogleStartBitrate: 1000,
         },

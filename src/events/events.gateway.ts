@@ -226,13 +226,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             listenIps: [
                 {
                     ip: '0.0.0.0',
-                    announcedIp: '165.227.153.132' || ip.address(),
+                    announcedIp: process.env.IP || ip.address(),
                 },
             ],
             enableUdp: true,
             enableTcp: true,
             preferUdp: true,
-            maxIncomingBitrate: 5000000,
+            maxIncomingBitrate: 1500000,
             initialAvailableOutgoingBitrate: 1000000,
         };
     }
