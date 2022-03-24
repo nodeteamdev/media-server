@@ -232,7 +232,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             enableUdp: true,
             enableTcp: true,
             preferUdp: true,
-            maxIncomingBitrate: 1500000,
+            maxIncomingBitrate: 5000000,
             initialAvailableOutgoingBitrate: 1000000,
         };
     }
