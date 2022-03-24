@@ -47,7 +47,7 @@ const setConsumeVideo = (track) => {
 
 const getLocalStream = (callback) => {
     window.navigator.getUserMedia({
-        audio: true,
+        audio: false,
         video: {
             width: {
                 min: 640,

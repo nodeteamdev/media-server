@@ -33,16 +33,8 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': [
       'error'
     ],
-    'import/extensions': [
-      'error',
-      'ignorePackages',
-      {
-        'js': 'never',
-        'jsx': 'never',
-        'ts': 'never',
-        'tsx': 'never'
-      }
-    ]
+    'import/extensions': 'off',
+    'import/no-extraneous-dependencies': 'off'
   },
   globals: {
     document: true,

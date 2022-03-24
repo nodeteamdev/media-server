@@ -4,19 +4,15 @@ import {
     WebSocketGateway,
     WebSocketServer,
     OnGatewayInit,
-    WsResponse,
     OnGatewayConnection,
     OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
 import * as ip from 'ip';
-import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-// eslint-disable-next-line
-import * as mediasoup from 'mediasoup';
+import { types } from 'mediasoup';
+import { Worker } from './worker';
 
 @WebSocketGateway({
     cors: {
@@ -30,85 +26,27 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
     private logger: Logger = new Logger('AppGateway');
 
-    public worker: any;
+    public worker: types.Worker;
 
-    public router: any;
+    public router: types.Router;
 
-    public producerTransport: any;
+    public producerTransport: types.WebRtcTransport;
 
-    public consumerTransport: any;
+    public consumerTransport: types.WebRtcTransport;
 
-    public producer: any;
+    public producer: types.Producer;
 
-    public consumer: any;
+    public consumer: types.Consumer;
 
     constructor(private configService: ConfigService) {
-        this.createWorkers();
-    }
-
-    /**
-     * Worker
-     * |-> Router(s)
-     *     |-> Producer Transport(s)
-     *         |-> Producer
-     *     |-> Consumer Transport(s)
-     *         |-> Consumer
-     * */
-    async createWorkers() {
         const mediasoupSettings = this.configService.get('mediasoup');
 
-        this.logger.debug('Create Mediasoup worker with next config');
-        this.logger.debug(mediasoupSettings);
-
-        this.worker = await mediasoup.createWorker(mediasoupSettings.worker);
-        this.router = await this.worker.createRouter({
-            mediaCodecs: mediasoupSettings.router.mediaCodecs,
-        });
-
-        this.logger.debug(`Worker PID ${this.worker.pid} started`);
-        this.logger.debug(`Router rtpCapabilities ${JSON.stringify(this.router.rtpCapabilities, null, 2)}`);
-
-        this.worker.on('died', (error) => {
-            this.logger.error('Mediasoup worker has died.');
-            this.logger.error(error);
-            setTimeout(() => process.exit(1), 2000);
-        });
-
-        this.getLogResourceUsage(this.worker);
-    }
-
-    private getLogResourceUsage(worker) {
-        const mediasoupSettings = this.configService.get('mediasoup');
-
-        setInterval(() => {
-            worker.getResourceUsage().then((data) => {
-                if (mediasoupSettings.resourceLogLevel === 'short') {
-                    this.logger.debug(data);
-                } else {
-                    this.logger.debug(`integral unshared data size 'ru_idrss':${data.ru_idrss}`);
-                    this.logger.debug(`block input operations 'ru_inblock':${data.ru_inblock}`);
-                    this.logger.debug(`integral unshared stack size 'ru_isrss':${data.ru_isrss}`);
-                    this.logger.debug(`integral shared memory size 'ru_ixrss': ${data.ru_ixrss}`);
-                    this.logger.debug(`page faults (hard page faults) 'ru_majflt': ${data.ru_majflt}`);
-                    this.logger.debug(`maximum resident set size 'ru_maxrss':${data.ru_maxrss}`);
-                    this.logger.debug(`page reclaims (soft page faults) 'ru_minflt':${data.ru_minflt}`);
-                    this.logger.debug(`IPC messages received 'ru_msgrcv': ${data.ru_msgrcv}`);
-                    this.logger.debug(`IPC messages sent 'ru_msgsnd':${data.ru_msgsnd}`);
-                    this.logger.debug(`involuntary context switches 'ru_nivcsw':${data.ru_nivcsw}`);
-                    this.logger.debug(`signals received 'ru_nsignals':${data.ru_nsignals}`);
-                    this.logger.debug(`swaps 'ru_nswap':${data.ru_nswap}`);
-                    this.logger.debug(` voluntary context switches 'ru_nvcsw':${data.ru_nvcsw}`);
-                    this.logger.debug(`block output operations 'ru_oublock':${data.ru_oublock}`);
-                    this.logger.debug(`system CPU time used 'ru_stime':${data.ru_stime}`);
-                    this.logger.debug(`user CPU time used 'ru_utime':${data.ru_utime}`);
-                }
+        new Worker(mediasoupSettings).startWorker().then(async (worker) => {
+            this.worker = worker;
+            this.router = await worker.createRouter({
+                mediaCodecs: mediasoupSettings.router.mediaCodecs,
             });
-        }, mediasoupSettings.resourceInterval);
-    }
-
-    @SubscribeMessage('events')
-    findAll(@MessageBody() data: any): Observable<WsResponse<number>> {
-        return from([1, 2, 3]).pipe(map(() => ({ event: 'events', data: { ...data } })));
+        });
     }
 
     @SubscribeMessage('getRtpCapabilities')
@@ -251,6 +189,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             }
         });
 
+        // @ts-ignore
         transport.on('close', () => {
             this.logger.debug(`transport id: ${transport.id} is closed`);
         });
