@@ -7,8 +7,15 @@ import { RedisIoAdapter } from './adapters/redis-io.adapter';
 
 const PORT = process.env.PORT || 3000;
 
+const httpsOptions = {
+    key: readFileSync(join(__dirname, '..', '/secrets/localhost.key'), 'utf8'),
+    cert: readFileSync(join(__dirname, '..', '/secrets/localhost.crt'), 'utf8'),
+};
+
 (async function bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+        httpsOptions,
+    });
 
     app.setBaseViewsDir(join(__dirname, '..', 'client', 'views'));
     app.setViewEngine('hbs');

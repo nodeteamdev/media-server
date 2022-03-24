@@ -10,11 +10,13 @@ import {
 } from '@nestjs/websockets';
 import { from, Observable } from 'rxjs';
 import * as ip from 'ip';
-import * as mediasoup from 'mediasoup';
 import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
+// eslint-disable-next-line
+import * as mediasoup from 'mediasoup';
 
 @WebSocketGateway({
     cors: {
@@ -224,16 +226,21 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             listenIps: [
                 {
                     ip: '0.0.0.0',
-                    announcedIp: ip.address(),
+                    announcedIp: '104.16.243.78' || ip.address(),
                 },
             ],
             enableUdp: true,
             enableTcp: true,
             preferUdp: true,
+            maxIncomingBitrate: 1500000,
+            initialAvailableOutgoingBitrate: 1000000,
         };
     }
 
     private async createWebRtcTransport() {
+        this.logger.debug('webRtcTransportOptions:');
+        this.logger.debug(this.webRtcTransportOptions);
+
         const transport = await this.router.createWebRtcTransport(this.webRtcTransportOptions);
 
         this.logger.debug(`transport id: ${transport.id} is opened`);

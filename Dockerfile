@@ -19,10 +19,9 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 RUN python3.9 get-pip.py
 
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y \
- nodejs
+RUN apt-get install -y nodejs
 
-RUN npm install -g @nestjs/cli
+RUN npm install -g @nestjs/cli pm2
 
 COPY package.json /tmp/package.json
 
@@ -41,4 +40,4 @@ EXPOSE 2000-2020
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js", "--hostname", "0.0.0.0"]
+CMD ["pm2", "start", "--no-daemon"]
