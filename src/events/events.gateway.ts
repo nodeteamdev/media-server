@@ -226,7 +226,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             listenIps: [
                 {
                     ip: '0.0.0.0',
-                    announcedIp: '104.16.243.78' || ip.address(),
+                    announcedIp: '165.227.153.132' || ip.address(),
                 },
             ],
             enableUdp: true,
