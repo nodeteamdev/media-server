@@ -202,7 +202,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
             return {
                 params: {
-                    error: 'router canConsume is false',
+                    error: 'Router can not consume. Please check rtpCapabilities.',
                 },
             };
         } catch (error) {

@@ -2720,23 +2720,6 @@ const app = {
     producerTransport: null,
     consumerTransport: null,
     producerOptions: {
-        /*encodings: [
-            {
-                rid: 'r0',
-                maxBitrate: 100000,
-                scalabilityMode: 'S1T3',
-            },
-            {
-                rid: 'r1',
-                maxBitrate: 300000,
-                scalabilityMode: 'S1T3',
-            },
-            {
-                rid: 'r0',
-                maxBitrate: 900000,
-                scalabilityMode: 'S1T3',
-            },
-        ],*/
         codecOptions: {
             videoGoogleStartBitrate: 1000,
         },
@@ -2770,7 +2753,7 @@ const setConsumeVideo = (track) => {
 
 const getLocalStream = (callback) => {
     window.navigator.getUserMedia({
-        audio: false,
+        audio: true,
         video: {
             width: {
                 min: 640,
