@@ -1,5 +1,4 @@
 import { Logger } from '@nestjs/common';
-// eslint-disable-next-line
 import * as mediasoup from 'mediasoup';
 
 /**

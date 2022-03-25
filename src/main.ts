@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
 
@@ -16,6 +17,10 @@ const httpsOptions = {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         httpsOptions,
     });
+
+    app.useGlobalPipes(new ValidationPipe({
+        transform: true,
+    }));
 
     app.setBaseViewsDir(join(__dirname, '..', 'client', 'views'));
     app.setViewEngine('hbs');

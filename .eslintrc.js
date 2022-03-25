@@ -39,5 +39,6 @@ module.exports = {
   globals: {
     document: true,
     window: true,
+    fetch: true,
   }
 };

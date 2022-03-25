@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <style>
+        nav {
+            margin-bottom: 24px;
+        }
+        .card {
+            width: 300px;
+        }
+
+        .row {
+            display: inline-flex;
+            margin: 16px;
+        }
+
+        #createRoomModal {
+            margin-top: 36px;
+        }
+    </style>
+</head>
+<body>
+<nav class="blue-grey lighten-5">
+    <div class="nav-wrapper">
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <a id="createRoomModal" class="btn-floating btn-large waves-effect waves-light blue-grey darken-3 modal-trigger" href="#addRoom"><i class="material-icons">add</i></a>
+        </ul>
+    </div>
+</nav>
+<ul class="people_list">
+    {{#each rooms}}
+        <div class="row">
+            <div class="card">
+                <div class="card-image waves-effect waves-block waves-light">
+                    <img class="activator" src="https://picsum.photos/300">
+                </div>
+                <div class="card-content">
+                    <p><a style="color: red" href="#" id="deleteRoom" data-id="{{this.id}}">Delete</a></p>
+                </div>
+                <div class="card-action">
+                    <a href="/room/watch/{{this.id}}" class="blue-grey-text text-darken-4">Join {{this.name}}</a>
+                </div>
+            </div>
+        </div>
+    {{/each}}
+</ul>
+
+<!-- Modal Structure -->
+<div id="addRoom" class="modal">
+    <div class="modal-content">
+        <div class="input-field col s12">
+            <input id="roomName" type="text" class="validate">
+            <label for="roomName">Room Name</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" id="createRoom" class="modal-close waves-effect waves-green btn-flat">Create</a>
+    </div>
+</div>
+</body>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="/js/rooms.js"></script>
+</html>

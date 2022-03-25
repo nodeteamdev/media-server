@@ -233,19 +233,4 @@ const startProduce = () => {
     });
 };
 
-const startConsume = () => {
-    goConnect({
-        produce: false,
-    });
-};
-
-document.getElementById('btnLocalVideo').addEventListener('click', getLocalStream);
-document.getElementById('btnRtpCapabilities').addEventListener('click', getRtpCapabilities);
-document.getElementById('btnDevice').addEventListener('click', createDevice);
-document.getElementById('btnCreateSendTransport').addEventListener('click', createSendTransport);
-document.getElementById('btnConnectSendTransport').addEventListener('click', connectSendTransport);
-document.getElementById('btnRecvSendTransport').addEventListener('click', createRecvTransport);
-document.getElementById('btnConnectRecvTransport').addEventListener('click', connectRecvTransport);
-
-document.getElementById('btnStartProduce').addEventListener('click', startProduce);
-document.getElementById('btnStartConsume').addEventListener('click', startConsume);
+startProduce();

@@ -2945,20 +2945,7 @@ const startConsume = () => {
     });
 };
 
-document.getElementById('btnLocalVideo').addEventListener('click', getLocalStream);
-document.getElementById('btnRtpCapabilities').addEventListener('click', getRtpCapabilities);
-document.getElementById('btnDevice').addEventListener('click', createDevice);
-document.getElementById('btnCreateSendTransport').addEventListener('click', createSendTransport);
-document.getElementById('btnConnectSendTransport').addEventListener('click', connectSendTransport);
-document.getElementById('btnRecvSendTransport').addEventListener('click', createRecvTransport);
-document.getElementById('btnConnectRecvTransport').addEventListener('click', connectRecvTransport);
-
-document.getElementById('btnStartProduce').addEventListener('click', startProduce);
-document.getElementById('btnStartConsume').addEventListener('click', startConsume);
-
-document.addEventListener('load', () => {
-    M.Modal.init(document.querySelectorAll('.modal'));
-});
+startConsume();
 
 },{"mediasoup-client":58,"socket.io-client":70}],7:[function(require,module,exports){
 /*
