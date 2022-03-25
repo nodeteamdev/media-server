@@ -20,12 +20,6 @@ const app = {
     },
 };
 
-socket.on('connection-success', ({ socketId }) => {
-    app.socketId = socketId;
-
-    console.log('app.socketId', app.socketId);
-});
-
 const setProduceVideo = (stream, callback) => {
     document.getElementById('localVideo').srcObject = stream;
 
@@ -223,20 +217,16 @@ const goConnect = ({ produce }) => {
     return goCreateTransport();
 };
 
-const startProduce = () => {
-    getLocalStream((stream) => {
-        setProduceVideo(stream, () => {
-            goConnect({
-                produce: true,
-            });
-        });
-    });
-};
-
 const startConsume = () => {
     goConnect({
         produce: false,
     });
 };
 
-startConsume();
+socket.on('connection-success', ({ socketId }) => {
+    app.socketId = socketId;
+
+    console.log('app.socketId', app.socketId);
+
+    startConsume();
+});

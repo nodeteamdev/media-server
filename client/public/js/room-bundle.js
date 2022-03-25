@@ -2726,12 +2726,6 @@ const app = {
     },
 };
 
-socket.on('connection-success', ({ socketId }) => {
-    app.socketId = socketId;
-
-    console.log('app.socketId', app.socketId);
-});
-
 const setProduceVideo = (stream, callback) => {
     document.getElementById('localVideo').srcObject = stream;
 
@@ -2939,7 +2933,13 @@ const startProduce = () => {
     });
 };
 
-startProduce();
+socket.on('connection-success', ({ socketId }) => {
+    app.socketId = socketId;
+
+    console.log('app.socketId', app.socketId);
+
+    startProduce();
+});
 
 },{"mediasoup-client":58,"socket.io-client":70}],7:[function(require,module,exports){
 /*
