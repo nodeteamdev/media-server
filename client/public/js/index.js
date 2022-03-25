@@ -2,7 +2,7 @@
 const mediasoupClient = require('mediasoup-client');
 const io = require('socket.io-client');
 
-const socket = io('/mediasoupe');
+const socket = io('/mediasoup');
 
 const app = {
     socketId: null,

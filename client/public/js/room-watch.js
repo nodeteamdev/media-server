@@ -1,9 +1,3 @@
-/* eslint-disable no-console */
-const mediasoupClient = require('mediasoup-client');
-const io = require('socket.io-client');
-
-const socket = io('/mediasoupe');
-
 const app = {
     socketId: null,
     rtpCapabilities: null,
@@ -20,46 +14,8 @@ const app = {
     },
 };
 
-const setProduceVideo = (stream, callback) => {
-    document.getElementById('localVideo').srcObject = stream;
-
-    const track = stream.getVideoTracks()[0];
-
-    app.producerOptions = {
-        track,
-        ...app.producerOptions,
-    };
-
-    if (typeof callback === 'function') {
-        callback();
-    }
-};
-
 const setConsumeVideo = (track) => {
     document.getElementById('remoteVideo').srcObject = new MediaStream([track]);
-};
-
-const getLocalStream = (callback) => {
-    window.navigator.getUserMedia({
-        audio: false,
-        video: {
-            width: {
-                min: 640,
-                max: 1920,
-            },
-            height: {
-                min: 400,
-                max: 1080,
-            },
-        },
-    }, (stream) => {
-        if (typeof callback === 'function') {
-            return callback(stream);
-        }
-        return setProduceVideo(stream);
-    }, (error) => {
-        console.error(error.message);
-    });
 };
 
 const getRtpCapabilities = (callback) => {
@@ -88,58 +44,6 @@ const createDevice = async (callback) => {
     }
 };
 
-const createSendTransport = (callback) => {
-    socket.emit('createWebRtcTransport', { sender: true }, ({ params }) => {
-        app.producerTransport = app.device.createSendTransport(params);
-
-        console.log('app.producerTransport', app.producerTransport);
-
-        app.producerTransport.on('connect', async ({ dtlsParameters }, _callback, _errback) => {
-            try {
-                await socket.emit('transport-connect', {
-                    dtlsParameters,
-                });
-
-                _callback();
-            } catch (error) {
-                _errback(error);
-            }
-        });
-
-        app.producerTransport.on('produce', async (parameters, _callback, _errback) => {
-            console.log('on produce parameters', parameters);
-
-            try {
-                await socket.emit('transport-produce', {
-                    kind: parameters.kind,
-                    rtpParameters: parameters.rtpParameters,
-                    appData: parameters.appData,
-                }, ({ id }) => {
-                    _callback({ id });
-                });
-            } catch (error) {
-                _errback(error);
-            }
-        });
-
-        if (typeof callback === 'function') {
-            callback();
-        }
-    });
-};
-
-const connectSendTransport = async () => {
-    app.producer = await app.producerTransport.produce(app.producerOptions);
-
-    app.producer.on('trackended', () => {
-        console.log('track ended');
-    });
-
-    app.producer.on('transportclose', () => {
-        console.log('transport ended');
-    });
-};
-
 const createRecvTransport = (callback) => {
     socket.emit('createWebRtcTransport', { sender: false }, ({ params }) => {
         if (params.error) {
@@ -150,7 +54,6 @@ const createRecvTransport = (callback) => {
         console.log('createRecvTransport params', params);
 
         app.consumerTransport = app.device.createRecvTransport(params);
-
         app.consumerTransport.on('connect', async ({ dtlsParameters }, _callback, _errback) => {
             try {
                 await socket.emit('transport-recv-connect', {
@@ -163,9 +66,7 @@ const createRecvTransport = (callback) => {
             }
         });
 
-        if (typeof callback === 'function') {
-            callback();
-        }
+        if (typeof callback === 'function')  callback();
     });
 };
 
@@ -195,15 +96,7 @@ const connectRecvTransport = () => {
     });
 };
 
-const goCreateTransport = () => {
-    if (app.isProducer) {
-        return createSendTransport(() => connectSendTransport());
-    }
-
-    return createRecvTransport(() => {
-        connectRecvTransport();
-    });
-};
+const goCreateTransport = () => createRecvTransport(() => connectRecvTransport());
 
 const goConnect = ({ produce }) => {
     app.isProducer = produce;
@@ -228,5 +121,7 @@ socket.on('connection-success', ({ socketId }) => {
 
     console.log('app.socketId', app.socketId);
 
-    startConsume();
+    // startConsume();
 });
+
+document.getElementById('btnStartConsume').addEventListener('click', startConsume);

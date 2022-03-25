@@ -18,7 +18,7 @@ import { Worker } from './worker';
     cors: {
         origin: '*',
     },
-    namespace: 'mediasoupe',
+    namespace: 'mediasoup',
 })
 export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
@@ -57,16 +57,16 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     }
 
     @SubscribeMessage('createWebRtcTransport')
-    async createTransport(@MessageBody() data: { sender: boolean; }) {
+    async createWebRtcTransport(@MessageBody() data: { sender: boolean; }) {
         if (data.sender) {
-            const { transport, params } = await this.createWebRtcTransport();
+            const { transport, params } = await this._createWebRtcTransport();
 
             this.producerTransport = transport;
 
             return { params };
         }
 
-        const { transport, params } = await this.createWebRtcTransport();
+        const { transport, params } = await this._createWebRtcTransport();
 
         this.consumerTransport = transport;
 
@@ -82,7 +82,8 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
     @SubscribeMessage('transport-recv-connect')
     async transportRecvConnect(@MessageBody() { dtlsParameters }) {
-        this.logger.debug(`transport recv connect: ${dtlsParameters} sent`);
+        this.logger.debug('transport recv connect:');
+        this.logger.debug(dtlsParameters);
 
         await this.consumerTransport.connect({ dtlsParameters });
     }
@@ -175,7 +176,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         };
     }
 
-    private async createWebRtcTransport() {
+    private async _createWebRtcTransport() {
         this.logger.debug('webRtcTransportOptions:');
         this.logger.debug(this.webRtcTransportOptions);
 
@@ -183,14 +184,13 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
         this.logger.debug(`transport id: ${transport.id} is opened`);
 
-        transport.on('dtlsstatechange', (dtlsState) => {
+        transport.observer.on('dtlsstatechange', (dtlsState) => {
             if (dtlsState === 'closed') {
                 transport.close();
             }
         });
 
-        // @ts-ignore
-        transport.on('close', () => {
+        transport.observer.on('close', () => {
             this.logger.debug(`transport id: ${transport.id} is closed`);
         });
 

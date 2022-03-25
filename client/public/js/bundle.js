@@ -2708,7 +2708,7 @@ process.umask = function() { return 0; };
 const mediasoupClient = require('mediasoup-client');
 const io = require('socket.io-client');
 
-const socket = io('/mediasoupe');
+const socket = io('/mediasoup');
 
 const app = {
     socketId: null,
@@ -2955,10 +2955,6 @@ document.getElementById('btnConnectRecvTransport').addEventListener('click', con
 
 document.getElementById('btnStartProduce').addEventListener('click', startProduce);
 document.getElementById('btnStartConsume').addEventListener('click', startConsume);
-
-document.addEventListener('load', () => {
-    M.Modal.init(document.querySelectorAll('.modal'));
-});
 
 },{"mediasoup-client":58,"socket.io-client":70}],7:[function(require,module,exports){
 /*

@@ -1,9 +1,3 @@
-/* eslint-disable no-console */
-const mediasoupClient = require('mediasoup-client');
-const io = require('socket.io-client');
-
-const socket = io('/mediasoupe');
-
 const app = {
     socketId: null,
     rtpCapabilities: null,

@@ -40,5 +40,8 @@ module.exports = {
     document: true,
     window: true,
     fetch: true,
+    socket: true,
+    mediasoupClient: true,
+    io: true,
   }
 };
