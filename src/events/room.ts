@@ -21,6 +21,42 @@ export class Room {
         return rooms;
     }
 
+    static closeProducerTransport(socketId: string) {
+        const transport = producerTransports.get(socketId);
+
+        if (transport) {
+            transport.close();
+            producerTransports.delete(socketId);
+        }
+    }
+
+    static closeConsumerTransport(socketId: string) {
+        const transport = consumerTransports.get(socketId);
+
+        if (transport) {
+            transport.close();
+            consumerTransports.delete(socketId);
+        }
+    }
+
+    static closeProducer(roomId: string, socketId: string) {
+        const producer = producers.get(roomId);
+
+        if (producer.producer && producer.socketId === socketId) {
+            producer.close();
+            producers.delete(roomId);
+        }
+    }
+
+    static closeConsumer(socketId: string) {
+        const consumer = consumers.get(socketId);
+
+        if (consumer) {
+            consumer.close();
+            consumers.delete(socketId);
+        }
+    }
+
     static setProducerTransport(socketId: string, transport: types.Transport) {
         return producerTransports.set(socketId, transport);
     }
@@ -37,12 +73,15 @@ export class Room {
         return consumerTransports.get(socketId);
     }
 
-    static setProducer(roomId: string, producer: types.Producer) {
-        return producers.set(roomId, producer);
+    static setProducer(roomId: string, socketId: string, producer: types.Producer) {
+        return producers.set(roomId, {
+            socketId,
+            producer,
+        });
     }
 
-    static getProducer(socketId: string) {
-        return producers.get(socketId);
+    static getProducer(roomId: string) {
+        return producers.get(roomId);
     }
 
     static setConsumer(socketId: string, consumer: types.Consumer) {

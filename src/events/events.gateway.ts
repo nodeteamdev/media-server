@@ -143,7 +143,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
             rtpParameters,
         });
 
-        Room.setProducer(roomId, producer);
+        Room.setProducer(roomId, socketId, producer);
 
         this.logger.debug(`producer id: ${producer.id}, producer kind: ${producer.kind}`);
 
@@ -165,7 +165,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         const { id: socketId } = client;
 
         const consumerTransport = Room.getConsumerTransport(socketId);
-        const producer = Room.getProducer(roomId);
+        const { producer } = Room.getProducer(roomId);
 
         try {
             if (router.canConsume({
@@ -274,6 +274,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
     async handleDisconnect(client: Socket) {
         await Room.removeClient(client.data.roomId, client.data.socketId);
+
+        const { roomId } = client.data;
+        const { id: socketId } = client;
+
+        Room.closeProducerTransport(socketId);
+        Room.closeConsumerTransport(socketId);
+        Room.closeProducer(roomId, socketId);
+        Room.closeConsumer(socketId);
 
         this.logger.log(`Client disconnected: ${client.id}`);
 
