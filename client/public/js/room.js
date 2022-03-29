@@ -2,6 +2,7 @@ const app = {
     socketId: null,
     rtpCapabilities: null,
     device: null,
+    roomId: null,
     isProducer: null,
     producer: null,
     consumer: null,
@@ -221,10 +222,15 @@ const startProduce = () => {
     });
 };
 
-socket.on('connection-success', ({ socketId }) => {
-    app.socketId = socketId;
+socket.on('connect', () => {
+    app.socketId = socket.id;
+    app.roomId = window.location.pathname.split('/').pop();
 
-    console.log('app.socketId', app.socketId);
+    socket.emit('join', {
+        roomId: app.roomId,
+    }, () => {
+        startProduce();
+    });
 
-    startProduce();
+    console.log('socket connected', socket.id);
 });

@@ -1,5 +1,6 @@
 import {
     MessageBody,
+    ConnectedSocket,
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
@@ -13,6 +14,7 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { types } from 'mediasoup';
 import { Worker } from './worker';
+import { Room } from './room';
 
 @WebSocketGateway({
     cors: {
@@ -28,8 +30,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
     public worker: types.Worker;
 
-    public router: types.Router;
-
     public producerTransport: types.WebRtcTransport;
 
     public consumerTransport: types.WebRtcTransport;
@@ -43,30 +43,64 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
         new Worker(mediasoupSettings).startWorker().then(async (worker) => {
             this.worker = worker;
-            this.router = await worker.createRouter({
-                mediaCodecs: mediasoupSettings.router.mediaCodecs,
-            });
         });
     }
 
-    @SubscribeMessage('getRtpCapabilities')
-    getRtpCapabilities() {
+    @SubscribeMessage('join')
+    async onJoin(@ConnectedSocket() client: Socket, @MessageBody() data: any): Promise<any> {
+        const _client = client;
+        const { roomId } = data;
+        const { id: socketId } = _client;
+        const mediasoupSettings = this.configService.get('mediasoup');
+
+        const room = await Room.joinClient(roomId, socketId);
+
+        if (room.router === null) {
+            room.router = await Room.createRouter(this.worker, mediasoupSettings.router.mediaCodecs);
+        }
+
+        _client.join(roomId);
+
+        _client.data = {
+            roomId,
+            socketId,
+        };
+
+        this.logger.debug(`Client ${socketId} joined room ${roomId}`);
+
         return {
-            rtpCapabilities: this.router.rtpCapabilities,
+            socketId,
+            roomId,
+        };
+    }
+
+    @SubscribeMessage('getRtpCapabilities')
+    async getRtpCapabilities(@ConnectedSocket() client: Socket) {
+        const { roomId } = client.data;
+        const { router } = await Room.getRoom(roomId);
+
+        return {
+            rtpCapabilities: router.rtpCapabilities,
         };
     }
 
     @SubscribeMessage('createWebRtcTransport')
-    async createWebRtcTransport(@MessageBody() data: { sender: boolean; }) {
+    async createWebRtcTransport(
+        @ConnectedSocket() client: Socket,
+        @MessageBody() data: { sender: boolean; },
+    ) {
+        const { roomId } = client.data;
+        const { router } = await Room.getRoom(roomId);
+
         if (data.sender) {
-            const { transport, params } = await this._createWebRtcTransport();
+            const { transport, params } = await this._createWebRtcTransport(router);
 
             this.producerTransport = transport;
 
             return { params };
         }
 
-        const { transport, params } = await this._createWebRtcTransport();
+        const { transport, params } = await this._createWebRtcTransport(router);
 
         this.consumerTransport = transport;
 
@@ -109,9 +143,12 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     }
 
     @SubscribeMessage('consume')
-    async consume(@MessageBody() { rtpCapabilities }) {
+    async consume(@MessageBody() { rtpCapabilities }, @ConnectedSocket() client: Socket) {
+        const { roomId } = client.data;
+        const { router } = await Room.getRoom(roomId);
+
         try {
-            if (this.router.canConsume({
+            if (router.canConsume({
                 producerId: this.producer.id,
                 rtpCapabilities,
             })) {
@@ -176,11 +213,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         };
     }
 
-    private async _createWebRtcTransport() {
+    private async _createWebRtcTransport(router) {
         this.logger.debug('webRtcTransportOptions:');
         this.logger.debug(this.webRtcTransportOptions);
 
-        const transport = await this.router.createWebRtcTransport(this.webRtcTransportOptions);
+        const transport = await router.createWebRtcTransport(this.webRtcTransportOptions);
 
         this.logger.debug(`transport id: ${transport.id} is opened`);
 
@@ -209,14 +246,15 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         this.logger.log('Call after init Server callback');
     }
 
-    handleDisconnect(client: Socket) {
+    async handleDisconnect(client: Socket) {
+        await Room.removeClient(client.data.roomId, client.data.socketId);
+
         this.logger.log(`Client disconnected: ${client.id}`);
+
+        client.leave(client.data.roomId);
     }
 
     handleConnection(client: Socket) {
         this.logger.log(`Client connected: ${client.id}`);
-        this.server.emit('connection-success', {
-            socketId: client.id,
-        });
     }
 }

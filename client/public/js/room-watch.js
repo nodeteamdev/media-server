@@ -66,7 +66,7 @@ const createRecvTransport = (callback) => {
             }
         });
 
-        if (typeof callback === 'function')  callback();
+        if (typeof callback === 'function') callback();
     });
 };
 
@@ -116,12 +116,17 @@ const startConsume = () => {
     });
 };
 
-socket.on('connection-success', ({ socketId }) => {
-    app.socketId = socketId;
+socket.on('connect', () => {
+    app.socketId = socket.id;
+    app.roomId = window.location.pathname.split('/').pop();
 
-    console.log('app.socketId', app.socketId);
+    socket.emit('join', {
+        roomId: app.roomId,
+    }, () => {
+        console.log('join success');
+    });
 
-    // startConsume();
+    console.log('socket.id', socket.id);
 });
 
 document.getElementById('btnStartConsume').addEventListener('click', startConsume);

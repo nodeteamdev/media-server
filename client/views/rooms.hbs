@@ -44,10 +44,11 @@
                     <img class="activator" src="https://picsum.photos/300">
                 </div>
                 <div class="card-content">
-                    <p><a style="color: red" href="#" id="deleteRoom" data-id="{{this.id}}">Delete</a></p>
+                    <p><a style="color: red" href="#" id="deleteRoom" data-id="{{this.id}}">Delete {{this.name}}</a></p>
                 </div>
                 <div class="card-action">
-                    <a href="/room/watch/{{this.id}}" class="blue-grey-text text-darken-4">Join {{this.name}}</a>
+                    <a href="/room/watch/{{this.id}}" class="blue-grey-text text-darken-4">Join</a>
+                    <a href="/room/{{this.id}}" class="blue-grey-text text-darken-4">Start Stream</a>
                 </div>
             </div>
         </div>

@@ -20,8 +20,8 @@ const app = {
     },
 };
 
-socket.on('connection-success', ({ socketId }) => {
-    app.socketId = socketId;
+socket.on('connect', () => {
+    app.socketId = socket.id;
 
     console.log('app.socketId', app.socketId);
 });
