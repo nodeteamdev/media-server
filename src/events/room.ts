@@ -1,6 +1,10 @@
 import { types } from 'mediasoup';
 
 const rooms = new Map();
+const producerTransports = new Map();
+const consumerTransports = new Map();
+const producers = new Map();
+const consumers = new Map();
 
 export class Room {
     clients: [] = [];
@@ -11,6 +15,42 @@ export class Room {
         this.clients = [];
 
         rooms.set(roomId, this);
+    }
+
+    get rooms() {
+        return rooms;
+    }
+
+    static setProducerTransport(socketId: string, transport: types.Transport) {
+        return producerTransports.set(socketId, transport);
+    }
+
+    static getProducerTransport(socketId: string) {
+        return producerTransports.get(socketId);
+    }
+
+    static setConsumerTransport(roomId: string, transport: types.Transport) {
+        return consumerTransports.set(roomId, transport);
+    }
+
+    static getConsumerTransport(socketId: string) {
+        return consumerTransports.get(socketId);
+    }
+
+    static setProducer(roomId: string, producer: types.Producer) {
+        return producers.set(roomId, producer);
+    }
+
+    static getProducer(socketId: string) {
+        return producers.get(socketId);
+    }
+
+    static setConsumer(socketId: string, consumer: types.Consumer) {
+        return consumers.set(socketId, consumer);
+    }
+
+    static getConsumer(socketId: string) {
+        return consumers.get(socketId);
     }
 
     static async createRouter(

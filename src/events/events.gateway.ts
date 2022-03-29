@@ -30,14 +30,6 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
     public worker: types.Worker;
 
-    public producerTransport: types.WebRtcTransport;
-
-    public consumerTransport: types.WebRtcTransport;
-
-    public producer: types.Producer;
-
-    public consumer: types.Consumer;
-
     constructor(private configService: ConfigService) {
         const mediasoupSettings = this.configService.get('mediasoup');
 
@@ -56,7 +48,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         const room = await Room.joinClient(roomId, socketId);
 
         if (room.router === null) {
-            room.router = await Room.createRouter(this.worker, mediasoupSettings.router.mediaCodecs);
+            room.router = await Room.createRouter(
+                this.worker,
+                mediasoupSettings.router.mediaCodecs,
+            );
         }
 
         _client.join(roomId);
@@ -89,56 +84,77 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         @ConnectedSocket() client: Socket,
         @MessageBody() data: { sender: boolean; },
     ) {
+        const { id: socketId } = client;
         const { roomId } = client.data;
         const { router } = await Room.getRoom(roomId);
 
         if (data.sender) {
             const { transport, params } = await this._createWebRtcTransport(router);
 
-            this.producerTransport = transport;
+            Room.setProducerTransport(socketId, transport);
 
             return { params };
         }
 
         const { transport, params } = await this._createWebRtcTransport(router);
 
-        this.consumerTransport = transport;
+        Room.setConsumerTransport(socketId, transport);
 
         return { params };
     }
 
     @SubscribeMessage('transport-connect')
-    async transportConnect(@MessageBody() { dtlsParameters }) {
+    async transportConnect(@MessageBody() { dtlsParameters }, @ConnectedSocket() client: Socket) {
+        const { id: socketId } = client;
         this.logger.debug('transport connect dtlsParameters sent');
 
-        await this.producerTransport.connect({ dtlsParameters });
+        const producerTransport = Room.getProducerTransport(socketId);
+
+        await producerTransport.connect({ dtlsParameters });
     }
 
     @SubscribeMessage('transport-recv-connect')
-    async transportRecvConnect(@MessageBody() { dtlsParameters }) {
+    async transportRecvConnect(
+        @MessageBody() { dtlsParameters },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { id: socketId } = client;
+
         this.logger.debug('transport recv connect:');
         this.logger.debug(dtlsParameters);
 
-        await this.consumerTransport.connect({ dtlsParameters });
+        const consumerTransport = Room.getConsumerTransport(socketId);
+
+        await consumerTransport.connect({ dtlsParameters });
     }
 
     @SubscribeMessage('transport-produce')
-    async transportProduce(@MessageBody() { kind, rtpParameters }) {
-        this.producer = await this.producerTransport.produce({
+    async transportProduce(
+        @MessageBody() { kind, rtpParameters },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { id: socketId } = client;
+        const { roomId } = client.data;
+
+        const producerTransport = Room.getProducerTransport(socketId);
+
+        const producer = await producerTransport.produce({
             kind,
             rtpParameters,
         });
 
-        this.logger.debug(`producer id: ${this.producer.id}, producer kind: ${this.producer.kind}`);
+        Room.setProducer(roomId, producer);
 
-        this.producer.on('transportclose', () => {
-            this.logger.debug(`transport for this producer ${this.producer.id} closed`);
+        this.logger.debug(`producer id: ${producer.id}, producer kind: ${producer.kind}`);
 
-            this.producer.close();
+        producer.on('transportclose', () => {
+            this.logger.debug(`transport for this producer ${producer.id} closed`);
+
+            producer.close();
         });
 
         return {
-            id: this.producer.id,
+            id: producer.id,
         };
     }
 
@@ -146,32 +162,38 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     async consume(@MessageBody() { rtpCapabilities }, @ConnectedSocket() client: Socket) {
         const { roomId } = client.data;
         const { router } = await Room.getRoom(roomId);
+        const { id: socketId } = client;
+
+        const consumerTransport = Room.getConsumerTransport(socketId);
+        const producer = Room.getProducer(roomId);
 
         try {
             if (router.canConsume({
-                producerId: this.producer.id,
+                producerId: producer.id,
                 rtpCapabilities,
             })) {
-                this.consumer = await this.consumerTransport.consume({
-                    producerId: this.producer.id,
+                const consumer = await consumerTransport.consume({
+                    producerId: producer.id,
                     rtpCapabilities,
                     paused: true,
                 });
 
-                this.consumer.on('transportclose', () => {
+                Room.setConsumer(socketId, consumer);
+
+                consumer.on('transportclose', () => {
                     this.logger.debug('transport close from consumer');
                 });
 
-                this.consumer.on('producerclose', () => {
+                consumer.on('producerclose', () => {
                     this.logger.debug('producer of consumer closed');
                 });
 
                 return {
                     params: {
-                        id: this.consumer.id,
-                        producerId: this.consumer.id,
-                        kind: this.consumer.kind,
-                        rtpParameters: this.consumer.rtpParameters,
+                        id: consumer.id,
+                        producerId: consumer.id,
+                        kind: consumer.kind,
+                        rtpParameters: consumer.rtpParameters,
                     },
                 };
             }
@@ -191,10 +213,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     }
 
     @SubscribeMessage('consumer-resume')
-    async consumerResume() {
+    async consumerResume(@ConnectedSocket() client: Socket) {
+        const { id: socketId } = client;
+
         this.logger.debug('consumer-resume');
 
-        await this.consumer.resume();
+        const consumer = Room.getConsumer(socketId);
+
+        await consumer.resume();
     }
 
     get webRtcTransportOptions() {
