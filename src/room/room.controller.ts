@@ -12,13 +12,13 @@ export class RoomController {
 
   @Get('/list')
   @Render('rooms')
-  async rooms() {
-      const rooms = await this.roomService.findAll();
+    async rooms() {
+        const rooms = await this.roomService.findAll();
 
-      return {
-          rooms,
-      };
-  }
+        return {
+            rooms,
+        };
+    }
 
   @Get('/watch/:id')
   @Render('room-watch')

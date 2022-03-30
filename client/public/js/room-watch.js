@@ -14,8 +14,19 @@ const app = {
     },
 };
 
+const KIND_TYPE = {
+    AUDIO: 'audio',
+    VIDEO: 'video',
+};
 const setConsumeVideo = (track) => {
     document.getElementById('remoteVideo').srcObject = new MediaStream([track]);
+};
+
+const setConsumeAudio = (track) => {
+    const video = document.getElementById('remoteVideo');
+
+    video.controls = '1';
+    video.srcObject.addTrack(track);
 };
 
 const getRtpCapabilities = (callback) => {
@@ -70,12 +81,13 @@ const createRecvTransport = (callback) => {
     });
 };
 
-const connectRecvTransport = () => {
+const connectRecvTransport = (kind) => {
     socket.emit('consume', {
         rtpCapabilities: app.device.rtpCapabilities,
+        kind,
     }, async ({ params }) => {
         if (params.error) {
-            console.error('Cannot Consume', params.error);
+            console.error(params.error);
             return;
         }
 
@@ -90,13 +102,24 @@ const connectRecvTransport = () => {
 
         const { track } = app.consumer;
 
-        setConsumeVideo(track);
+        if (KIND_TYPE.VIDEO === kind) {
+            setConsumeVideo(track);
+        }
 
-        socket.emit('consumer-resume');
+        if (KIND_TYPE.AUDIO === kind) {
+            setConsumeAudio(track);
+        }
+
+        socket.emit('consumer-resume', {
+            kind: params.kind,
+        });
     });
 };
 
-const goCreateTransport = () => createRecvTransport(() => connectRecvTransport());
+const goCreateTransport = () => createRecvTransport(() => {
+    connectRecvTransport('video');
+    connectRecvTransport('audio');
+});
 
 const goConnect = ({ produce }) => {
     app.isProducer = produce;

@@ -3,8 +3,10 @@ import { types } from 'mediasoup';
 const rooms = new Map();
 const producerTransports = new Map();
 const consumerTransports = new Map();
-const producers = new Map();
-const consumers = new Map();
+const audioProducers = new Map();
+const videoProducers = new Map();
+const audioConsumers = new Map();
+const videoConsumers = new Map();
 
 export class Room {
     clients: [] = [];
@@ -39,21 +41,39 @@ export class Room {
         }
     }
 
-    static closeProducer(roomId: string, socketId: string) {
-        const producer = producers.get(roomId);
+    static closeVideoProducer(roomId: string, socketId: string) {
+        const producer = videoProducers.get(roomId);
 
-        if (producer.producer && producer.socketId === socketId) {
+        if (producer && producer.producer && producer.socketId === socketId) {
             producer.producer.close();
-            producers.delete(roomId);
+            videoProducers.delete(roomId);
         }
     }
 
-    static closeConsumer(socketId: string) {
-        const consumer = consumers.get(socketId);
+    static closeAudioProducer(roomId: string, socketId: string) {
+        const producer = audioProducers.get(roomId);
+
+        if (producer && producer.producer && producer.socketId === socketId) {
+            producer.producer.close();
+            audioProducers.delete(roomId);
+        }
+    }
+
+    static closeVideoConsumer(socketId: string) {
+        const consumer = videoConsumers.get(socketId);
 
         if (consumer) {
             consumer.close();
-            consumers.delete(socketId);
+            videoConsumers.delete(socketId);
+        }
+    }
+
+    static closeAudioConsumer(socketId: string) {
+        const consumer = audioConsumers.get(socketId);
+
+        if (consumer) {
+            consumer.close();
+            audioConsumers.delete(socketId);
         }
     }
 
@@ -73,23 +93,42 @@ export class Room {
         return consumerTransports.get(socketId);
     }
 
-    static setProducer(roomId: string, socketId: string, producer: types.Producer) {
-        return producers.set(roomId, {
+    static setAudioProducer(roomId: string, socketId: string, producer: types.Producer) {
+        return audioProducers.set(roomId, {
             socketId,
             producer,
         });
     }
 
-    static getProducer(roomId: string) {
-        return producers.get(roomId);
+    static setVideoProducer(roomId: string, socketId: string, producer: types.Producer) {
+        return videoProducers.set(roomId, {
+            socketId,
+            producer,
+        });
     }
 
-    static setConsumer(socketId: string, consumer: types.Consumer) {
-        return consumers.set(socketId, consumer);
+    static getAudioProducer(roomId: string) {
+        return audioProducers.get(roomId);
     }
 
-    static getConsumer(socketId: string) {
-        return consumers.get(socketId);
+    static getVideoProducer(roomId: string) {
+        return videoProducers.get(roomId);
+    }
+
+    static setVideoConsumer(socketId: string, consumer: types.Consumer) {
+        return videoConsumers.set(socketId, consumer);
+    }
+
+    static setAudioConsumer(socketId: string, consumer: types.Consumer) {
+        return audioConsumers.set(socketId, consumer);
+    }
+
+    static getVideoConsumer(socketId: string) {
+        return videoConsumers.get(socketId);
+    }
+
+    static getAudioConsumer(socketId: string) {
+        return audioConsumers.get(socketId);
     }
 
     static async createRouter(

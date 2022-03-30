@@ -5,7 +5,8 @@ const app = {
     roomId: null,
     isProducer: null,
     producer: null,
-    consumer: null,
+    audioConsumer: null,
+    videoConsumer: null,
     producerTransport: null,
     consumerTransport: null,
     producerOptions: {
@@ -16,12 +17,20 @@ const app = {
 };
 
 const setProduceVideo = (stream, callback) => {
-    document.getElementById('localVideo').srcObject = stream;
+    const localVideo = document.getElementById('localVideo');
+    localVideo.srcObject = stream;
+    localVideo.volume = 0;
 
-    const track = stream.getVideoTracks()[0];
+    const videoTrack = stream.getVideoTracks()[0];
+    const audioTrack = stream.getAudioTracks()[0];
 
-    app.producerOptions = {
-        track,
+    app.videoProducerOptions = {
+        track: videoTrack,
+        ...app.producerOptions,
+    };
+
+    app.audioProducerOptions = {
+        track: audioTrack,
         ...app.producerOptions,
     };
 
@@ -30,13 +39,9 @@ const setProduceVideo = (stream, callback) => {
     }
 };
 
-const setConsumeVideo = (track) => {
-    document.getElementById('remoteVideo').srcObject = new MediaStream([track]);
-};
-
 const getLocalStream = (callback) => {
     window.navigator.getUserMedia({
-        audio: false,
+        audio: true,
         video: {
             width: {
                 min: 640,
@@ -124,81 +129,28 @@ const createSendTransport = (callback) => {
 };
 
 const connectSendTransport = async () => {
-    app.producer = await app.producerTransport.produce(app.producerOptions);
+    app.videoProducer = await app.producerTransport.produce(app.videoProducerOptions);
 
-    app.producer.on('trackended', () => {
-        console.log('track ended');
+    app.videoProducer.on('trackended', () => {
+        console.log('video track ended');
     });
 
-    app.producer.on('transportclose', () => {
-        console.log('transport ended');
+    app.videoProducer.on('transportclose', () => {
+        console.log('video transport ended');
     });
-};
 
-const createRecvTransport = (callback) => {
-    socket.emit('createWebRtcTransport', { sender: false }, ({ params }) => {
-        if (params.error) {
-            console.error('Cannot createWebRtcTransport consume', params.error);
-            return;
-        }
+    app.audioProducer = await app.producerTransport.produce(app.audioProducerOptions);
 
-        console.log('createRecvTransport params', params);
+    app.audioProducer.on('trackended', () => {
+        console.log('audio track ended');
+    });
 
-        app.consumerTransport = app.device.createRecvTransport(params);
-
-        app.consumerTransport.on('connect', async ({ dtlsParameters }, _callback, _errback) => {
-            try {
-                await socket.emit('transport-recv-connect', {
-                    dtlsParameters,
-                });
-
-                _callback();
-            } catch (error) {
-                _errback(error);
-            }
-        });
-
-        if (typeof callback === 'function') {
-            callback();
-        }
+    app.audioProducer.on('transportclose', () => {
+        console.log('audio transport ended');
     });
 };
 
-const connectRecvTransport = () => {
-    socket.emit('consume', {
-        rtpCapabilities: app.device.rtpCapabilities,
-    }, async ({ params }) => {
-        if (params.error) {
-            console.error('Cannot Consume', params.error);
-            return;
-        }
-
-        console.log('Consume params', params);
-
-        app.consumer = await app.consumerTransport.consume({
-            id: params.id,
-            producerId: params.producerId,
-            kind: params.kind,
-            rtpParameters: params.rtpParameters,
-        });
-
-        const { track } = app.consumer;
-
-        setConsumeVideo(track);
-
-        socket.emit('consumer-resume');
-    });
-};
-
-const goCreateTransport = () => {
-    if (app.isProducer) {
-        return createSendTransport(() => connectSendTransport());
-    }
-
-    return createRecvTransport(() => {
-        connectRecvTransport();
-    });
-};
+const goCreateTransport = () => createSendTransport(() => connectSendTransport());
 
 const goConnect = ({ produce }) => {
     app.isProducer = produce;

@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { types } from 'mediasoup';
 import { Worker } from './worker';
 import { Room } from './room';
+import { KIND_TYPE } from '../enums/kind';
 
 @WebSocketGateway({
     cors: {
@@ -26,7 +27,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     @WebSocketServer()
         server: Server;
 
-    private logger: Logger = new Logger('AppGateway');
+    private logger: Logger = new Logger(EventsGateway.name);
 
     public worker: types.Worker;
 
@@ -136,36 +137,67 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         const { id: socketId } = client;
         const { roomId } = client.data;
 
-        const producerTransport = Room.getProducerTransport(socketId);
+        if (kind === KIND_TYPE.VIDEO) {
+            const producerTransport = Room.getProducerTransport(socketId);
 
-        const producer = await producerTransport.produce({
-            kind,
-            rtpParameters,
-        });
+            const producer = await producerTransport.produce({
+                kind,
+                rtpParameters,
+            });
 
-        Room.setProducer(roomId, socketId, producer);
+            Room.setVideoProducer(roomId, socketId, producer);
 
-        this.logger.debug(`producer id: ${producer.id}, producer kind: ${producer.kind}`);
+            this.logger.debug(`producer id: ${producer.id}, producer kind: ${producer.kind}`);
 
-        producer.on('transportclose', () => {
-            this.logger.debug(`transport for this producer ${producer.id} closed`);
+            producer.on('transportclose', () => {
+                this.logger.debug(`transport for this producer ${producer.id} closed`);
 
-            producer.close();
-        });
+                producer.close();
+            });
+
+            return {
+                id: producer.id,
+            };
+        }
+
+        if (kind === KIND_TYPE.AUDIO) {
+            const producerTransport = Room.getProducerTransport(socketId);
+
+            const producer = await producerTransport.produce({
+                kind,
+                rtpParameters,
+            });
+
+            Room.setAudioProducer(roomId, socketId, producer);
+
+            this.logger.debug(`producer id: ${producer.id}, producer kind: ${producer.kind}`);
+
+            producer.on('transportclose', () => {
+                this.logger.debug(`transport for this producer ${producer.id} closed`);
+
+                producer.close();
+            });
+
+            return {
+                id: producer.id,
+            };
+        }
 
         return {
-            id: producer.id,
+            error: 'kind is not supported, must be "audio" or "video"',
         };
     }
 
     @SubscribeMessage('consume')
-    async consume(@MessageBody() { rtpCapabilities }, @ConnectedSocket() client: Socket) {
+    async consume(@MessageBody() { rtpCapabilities, kind }, @ConnectedSocket() client: Socket) {
         const { roomId } = client.data;
         const { router } = await Room.getRoom(roomId);
         const { id: socketId } = client;
 
         const consumerTransport = Room.getConsumerTransport(socketId);
-        const { producer } = Room.getProducer(roomId);
+        const { producer } = KIND_TYPE.VIDEO === kind
+            ? Room.getVideoProducer(roomId)
+            : Room.getAudioProducer(roomId);
 
         try {
             if (router.canConsume({
@@ -178,7 +210,11 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
                     paused: true,
                 });
 
-                Room.setConsumer(socketId, consumer);
+                if (KIND_TYPE.VIDEO === kind) {
+                    Room.setVideoConsumer(socketId, consumer);
+                } else {
+                    Room.setAudioConsumer(socketId, consumer);
+                }
 
                 consumer.on('transportclose', () => {
                     this.logger.debug('transport close from consumer');
@@ -213,14 +249,26 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     }
 
     @SubscribeMessage('consumer-resume')
-    async consumerResume(@ConnectedSocket() client: Socket) {
+    async consumerResume(@ConnectedSocket() client: Socket, @MessageBody() { kind }) {
         const { id: socketId } = client;
 
         this.logger.debug('consumer-resume');
 
-        const consumer = Room.getConsumer(socketId);
+        if (kind === KIND_TYPE.VIDEO) {
+            const consumer = Room.getVideoConsumer(socketId);
 
-        await consumer.resume();
+            consumer.resume();
+        }
+
+        if (kind === KIND_TYPE.AUDIO) {
+            const consumer = Room.getAudioConsumer(socketId);
+
+            consumer.resume();
+        }
+
+        return {
+            error: 'kind is not supported, must be "audio" or "video"',
+        };
     }
 
     get webRtcTransportOptions() {
@@ -280,8 +328,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
         Room.closeProducerTransport(socketId);
         Room.closeConsumerTransport(socketId);
-        Room.closeProducer(roomId, socketId);
-        Room.closeConsumer(socketId);
+        Room.closeVideoProducer(roomId, socketId);
+        Room.closeAudioProducer(roomId, socketId);
+        Room.closeAudioConsumer(socketId);
+        Room.closeVideoConsumer(socketId);
 
         this.logger.log(`Client disconnected: ${client.id}`);
 

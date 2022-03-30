@@ -34,7 +34,9 @@ module.exports = {
       'error'
     ],
     'import/extensions': 'off',
-    'import/no-extraneous-dependencies': 'off'
+    'import/no-extraneous-dependencies': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error']
   },
   globals: {
     document: true,
