@@ -20,6 +20,7 @@ const setProduceVideo = (stream, callback) => {
     const localVideo = document.getElementById('localVideo');
     localVideo.srcObject = stream;
     localVideo.volume = 0;
+    localVideo.controls = '1';
 
     const videoTrack = stream.getVideoTracks()[0];
     const audioTrack = stream.getAudioTracks()[0];
