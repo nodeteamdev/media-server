@@ -152,4 +152,4 @@ socket.on('connect', () => {
     console.log('socket.id', socket.id);
 });
 
-document.getElementById('btnStartConsume').addEventListener('click', startConsume);
+document.getElementById('btnStartConsume').addEventListener('mouseup', startConsume);

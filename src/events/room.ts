@@ -1,12 +1,12 @@
 import { types } from 'mediasoup';
 
 const rooms = new Map();
-const producerTransports = new Map();
-const consumerTransports = new Map();
 const audioProducers = new Map();
 const videoProducers = new Map();
 const audioConsumers = new Map();
 const videoConsumers = new Map();
+const producerTransports = new Map();
+const consumerTransports = new Map();
 
 export class Room {
     clients: [] = [];
