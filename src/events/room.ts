@@ -43,7 +43,7 @@ export class Room {
         const producer = producers.get(roomId);
 
         if (producer.producer && producer.socketId === socketId) {
-            producer.close();
+            producer.producer.close();
             producers.delete(roomId);
         }
     }
