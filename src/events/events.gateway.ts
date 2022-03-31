@@ -64,9 +64,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
         this.logger.debug(`Client ${socketId} joined room ${roomId}`);
 
+        this.server.to(roomId).emit('count-update', {
+            count: Room.getClientsCount(roomId),
+        });
+
         return {
             socketId,
             roomId,
+            count: room.clients.length - 1,
         };
     }
 
@@ -334,6 +339,10 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         Room.closeVideoConsumer(socketId);
 
         this.logger.log(`Client disconnected: ${client.id}`);
+
+        this.server.to(roomId).emit('count-update', {
+            count: Room.getClientsCount(roomId),
+        });
 
         client.leave(client.data.roomId);
     }

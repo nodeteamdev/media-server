@@ -152,6 +152,16 @@ export class Room {
         }
     }
 
+    static getClientsCount(roomId: string) {
+        const room = rooms.get(roomId);
+
+        if (room) {
+            return room.clients.length - 1;
+        }
+
+        return 0;
+    }
+
     static async joinClient(roomId: string, clientId: string) {
         const existRoom: Room = await Room.getRoom(roomId);
 

@@ -5,7 +5,7 @@ import WsException from './ws-exception';
 
 export default class BaseWsExceptionFilter<TError = any>
 implements WsExceptionFilter<TError> {
-    private static readonly logger = new Logger('WsExceptionsHandler');
+    private readonly logger = new Logger(BaseWsExceptionFilter.name);
 
     public catch(exception: TError, host: ArgumentsHost) {
         const client = host.switchToWs().getClient();
@@ -43,12 +43,12 @@ implements WsExceptionFilter<TError> {
         });
 
         if (this.isExceptionObject(exception)) {
-            return BaseWsExceptionFilter.logger.error(
+            return this.logger.error(
                 exception.message,
                 exception.stack,
             );
         }
-        return BaseWsExceptionFilter.logger.error(exception);
+        return this.logger.error(exception);
     }
 
     public isExceptionObject(err: any): err is Error {

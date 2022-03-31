@@ -196,18 +196,27 @@ const startProduce = () => {
     });
 };
 
+const setCount = (count) => {
+    document.getElementById('onlineCount').innerText = count;
+};
+
 socket.on('connect', () => {
     app.socketId = socket.id;
     app.roomId = window.location.pathname.split('/').pop();
 
     socket.emit('join', {
         roomId: app.roomId,
-    }, () => {
+    }, ({ count }) => {
+        setCount(count);
         startProduce();
     });
 
     socket.on('exeption', (error) => {
         console.error(error);
+    });
+
+    socket.on('count-update', ({ count }) => {
+        setCount(count);
     });
 
     console.log('socket connected', socket.id);
