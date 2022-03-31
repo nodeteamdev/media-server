@@ -19,13 +19,17 @@ const KIND_TYPE = {
     VIDEO: 'video',
 };
 const setConsumeVideo = (track) => {
-    document.getElementById('remoteVideo').srcObject = new MediaStream([track]);
+    const video = document.getElementById('remoteVideo');
+
+    video.srcObject = new MediaStream([track]);
+    video.controls = '1';
+
+    video.play();
 };
 
 const setConsumeAudio = (track) => {
     const video = document.getElementById('remoteVideo');
 
-    video.controls = '1';
     video.srcObject.addTrack(track);
 };
 

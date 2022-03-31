@@ -20,7 +20,6 @@ const setProduceVideo = (stream, callback) => {
     const localVideo = document.getElementById('localVideo');
     localVideo.srcObject = stream;
     localVideo.volume = 0;
-    localVideo.controls = '1';
 
     const videoTrack = stream.getVideoTracks()[0];
     const audioTrack = stream.getAudioTracks()[0];
@@ -41,7 +40,7 @@ const setProduceVideo = (stream, callback) => {
 };
 
 const getLocalStream = (callback) => {
-    window.navigator.getUserMedia({
+    window.navigator.mediaDevices.getUserMedia({
         audio: true,
         video: {
             width: {
@@ -53,12 +52,12 @@ const getLocalStream = (callback) => {
                 max: 1080,
             },
         },
-    }, (stream) => {
+    }).then((stream) => {
         if (typeof callback === 'function') {
             return callback(stream);
         }
         return setProduceVideo(stream);
-    }, (error) => {
+    }).catch((error) => {
         console.error(error.message);
     });
 };
