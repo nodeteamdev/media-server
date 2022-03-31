@@ -9,7 +9,29 @@ const app = {
     videoConsumer: null,
     producerTransport: null,
     consumerTransport: null,
-    producerOptions: {
+    videoProduceOptions: {
+        encodings: [
+            {
+                rid: 'r0',
+                maxBitrate: 900000,
+                scalabilityMode: 'S1T3',
+            },
+            {
+                rid: 'r1',
+                maxBitrate: 1200000,
+                scalabilityMode: 'S1T3',
+            },
+            {
+                rid: 'r2',
+                maxBitrate: 1500000,
+                scalabilityMode: 'S1T3',
+            },
+        ],
+        codecOptions: {
+            videoGoogleStartBitrate: 1000,
+        },
+    },
+    audioProducerOptions: {
         codecOptions: {
             videoGoogleStartBitrate: 1000,
         },
@@ -26,12 +48,12 @@ const setProduceVideo = (stream, callback) => {
 
     app.videoProducerOptions = {
         track: videoTrack,
-        ...app.producerOptions,
+        ...app.videoProduceOptions,
     };
 
     app.audioProducerOptions = {
         track: audioTrack,
-        ...app.producerOptions,
+        ...app.audioProducerOptions,
     };
 
     if (typeof callback === 'function') {
@@ -182,6 +204,10 @@ socket.on('connect', () => {
         roomId: app.roomId,
     }, () => {
         startProduce();
+    });
+
+    socket.on('exeption', (error) => {
+        console.error(error);
     });
 
     console.log('socket connected', socket.id);

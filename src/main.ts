@@ -5,6 +5,9 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
+import AllExceptionsFilter from './core/filters/all-exeption.filter';
+import BaseWsExceptionFilter from './core/filters/ws-exceptions.filter';
+import NotFoundExceptionFilter from './core/filters/not-found.exception.filter';
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,6 +24,10 @@ const httpsOptions = {
     app.useGlobalPipes(new ValidationPipe({
         transform: true,
     }));
+
+    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalFilters(new BaseWsExceptionFilter());
+    app.useGlobalFilters(new NotFoundExceptionFilter());
 
     app.setBaseViewsDir(join(__dirname, '..', 'client', 'views'));
     app.setViewEngine('hbs');

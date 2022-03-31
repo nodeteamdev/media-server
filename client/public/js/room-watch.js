@@ -153,6 +153,10 @@ socket.on('connect', () => {
         console.log('join success');
     });
 
+    socket.on('exeption', (error) => {
+        console.error(error);
+    });
+
     console.log('socket.id', socket.id);
 });
 
