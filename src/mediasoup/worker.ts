@@ -3,7 +3,7 @@ import * as mediasoup from 'mediasoup';
 
 /**
  * A worker represents a mediasoup C++ subprocess
- * that runs in a single CPU core and handles Router instances.
+ * that runs in a single CPU core and handles Transport instances.
  */
 export class Worker {
     private logger: Logger = new Logger(Worker.name);
@@ -27,7 +27,7 @@ export class Worker {
 
     /**
      * Worker
-     * |-> Router(s)
+     * |-> Transport(s)
      *     |-> Producer Transport(s)
      *         |-> Producer
      *     |-> Consumer Transport(s)

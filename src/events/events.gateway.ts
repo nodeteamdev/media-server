@@ -8,14 +8,15 @@ import {
     OnGatewayConnection,
     OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import * as ip from 'ip';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { types } from 'mediasoup';
-import { Worker } from './worker';
-import { Room } from './room';
+import { Worker } from '../mediasoup/worker';
+import { Room } from '../mediasoup/room';
 import { KIND_TYPE } from '../enums/kind';
+import Transport from '../mediasoup/transport';
+import { Recording } from '../mediasoup/recording';
 
 @WebSocketGateway({
     cors: {
@@ -95,14 +96,14 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         const { router } = await Room.getRoom(roomId);
 
         if (data.sender) {
-            const { transport, params } = await this._createWebRtcTransport(router);
+            const { transport, params } = await Transport.createWebRtcTransport(router);
 
             Room.setProducerTransport(socketId, transport);
 
             return { params };
         }
 
-        const { transport, params } = await this._createWebRtcTransport(router);
+        const { transport, params } = await Transport.createWebRtcTransport(router);
 
         Room.setConsumerTransport(socketId, transport);
 
@@ -241,7 +242,7 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
             return {
                 params: {
-                    error: 'Router can not consume. Please check rtpCapabilities.',
+                    error: 'Transport can not consume. Please check rtpCapabilities.',
                 },
             };
         } catch (error) {
@@ -276,49 +277,16 @@ export class EventsGateway implements OnGatewayInit, OnGatewayConnection, OnGate
         };
     }
 
-    get webRtcTransportOptions() {
-        return {
-            listenIps: [
-                {
-                    ip: '0.0.0.0',
-                    announcedIp: process.env.IP || ip.address(),
-                },
-            ],
-            enableUdp: true,
-            enableTcp: true,
-            preferUdp: true,
-            maxIncomingBitrate: 1500000,
-            initialAvailableOutgoingBitrate: 1000000,
-        };
-    }
+    @SubscribeMessage('recording-start')
+    async recordingStart(@ConnectedSocket() client: Socket) {
+        const { id: socketId } = client;
+        const { roomId } = client.data;
 
-    private async _createWebRtcTransport(router) {
-        this.logger.debug('webRtcTransportOptions:');
-        this.logger.debug(this.webRtcTransportOptions);
+        const recording = new Recording();
 
-        const transport = await router.createWebRtcTransport(this.webRtcTransportOptions);
+        await recording.startRecord(roomId);
 
-        this.logger.debug(`transport id: ${transport.id} is opened`);
-
-        transport.observer.on('dtlsstatechange', (dtlsState) => {
-            if (dtlsState === 'closed') {
-                transport.close();
-            }
-        });
-
-        transport.observer.on('close', () => {
-            this.logger.debug(`transport id: ${transport.id} is closed`);
-        });
-
-        return {
-            transport,
-            params: {
-                id: transport.id,
-                iceParameters: transport.iceParameters,
-                iceCandidates: transport.iceCandidates,
-                dtlsParameters: transport.dtlsParameters,
-            },
-        };
+        this.logger.debug('recording-start', socketId, roomId);
     }
 
     afterInit() {

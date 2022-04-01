@@ -23,6 +23,15 @@ export class Room {
         return rooms;
     }
 
+    static getRouter(roomId) {
+        if (rooms.has(roomId)) {
+            const room = rooms.get(roomId);
+
+            return room.router;
+        }
+        return null;
+    }
+
     static closeProducerTransport(socketId: string) {
         const transport = producerTransports.get(socketId);
 

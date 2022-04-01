@@ -200,6 +200,12 @@ const setCount = (count) => {
     document.getElementById('onlineCount').innerText = count;
 };
 
+const bindButtons = () => {
+    document.getElementById('recordingStart').addEventListener('click', () => {
+        socket.emit('recording-start');
+    });
+};
+
 socket.on('connect', () => {
     app.socketId = socket.id;
     app.roomId = window.location.pathname.split('/').pop();
@@ -220,4 +226,6 @@ socket.on('connect', () => {
     });
 
     console.log('socket connected', socket.id);
+
+    bindButtons();
 });
