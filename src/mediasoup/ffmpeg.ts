@@ -3,9 +3,8 @@ import { EventEmitter } from 'events';
 import { Logger } from '@nestjs/common';
 
 import { Readable } from 'stream';
+import { join } from 'path';
 import { SDP } from './sdp';
-
-const RECORD_FILE_LOCATION_PATH = './files';
 
 export class FFmpeg {
     private logger = new Logger(FFmpeg.name);
@@ -42,25 +41,35 @@ export class FFmpeg {
         if (this.process.stderr) {
             this.process.stderr.setEncoding('utf-8');
 
-            this.process.stderr.on('data', (data) => this.logger.debug('ffmpeg::process::data', data));
+            this.process.stderr.on('data', (data) => {
+                this.logger.debug('ffmpeg::process::data', data);
+            });
         }
 
         if (this.process.stdout) {
             this.process.stdout.setEncoding('utf-8');
 
-            this.process.stdout.on('data', (data) => this.logger.debug('ffmpeg::process::data', data));
+            this.process.stdout.on('data', (data) => {
+                this.logger.debug('ffmpeg::process::data', data);
+            });
         }
 
-        this.process.on('message', (message) => this.logger.debug('ffmpeg::process::message', message));
+        this.process.on('message', (message) => {
+            this.logger.debug('ffmpeg::process::message', message);
+        });
 
-        this.process.on('error', (error) => this.logger.error('ffmpeg::process::error', error));
+        this.process.on('error', (error) => {
+            this.logger.error('ffmpeg::process::error', error);
+        });
 
         this.process.once('close', () => {
             this.logger.debug('ffmpeg::process::close');
             this.observer.emit('process-close');
         });
 
-        sdpStream.on('error', (error) => this.logger.error('sdpStream::error [error:]', error));
+        sdpStream.on('error', (error) => {
+            this.logger.error('sdpStream::error [error:]', error);
+        });
 
         // Pipe sdp stream to the ffmpeg process
         sdpStream.resume();
@@ -75,7 +84,7 @@ export class FFmpeg {
     get _commandArgs() {
         let commandArgs = [
             '-loglevel',
-            'debug',
+            'trace',
             '-protocol_whitelist',
             'pipe,udp,rtp',
             '-fflags',
@@ -84,16 +93,18 @@ export class FFmpeg {
             'sdp',
             '-i',
             'pipe:0',
+            '-flags',
+            '+global_header',
         ];
 
         commandArgs = commandArgs.concat(this._videoArgs);
         commandArgs = commandArgs.concat(this._audioArgs);
 
         commandArgs = commandArgs.concat([
-            `${RECORD_FILE_LOCATION_PATH}/${this.rtpParameters.recordName}.webm`,
+            join(__dirname, '..', '..', 'files', `${this.rtpParameters.recordName}.webm`),
         ]);
 
-        this.logger.debug('commandArgs:%o', commandArgs);
+        this.logger.debug('commandArgs', commandArgs);
 
         return commandArgs;
     }
@@ -111,8 +122,6 @@ export class FFmpeg {
         return [
             '-map',
             '0:a:0',
-            '-strict',
-            '-2',
             '-c:a',
             'copy',
         ];

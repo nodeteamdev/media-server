@@ -1,3 +1,5 @@
+import * as ip from 'ip';
+
 export class SDP {
     static getCodecInfoFromRtpParameters(kind, rtpParameters) {
         return {

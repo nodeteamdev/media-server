@@ -1,3 +1,4 @@
+import * as ip from 'ip';
 import { Room } from './room';
 import { FFmpeg } from './ffmpeg';
 import Transport from './transport';
@@ -56,7 +57,7 @@ export class Recording {
         this.remotePorts.push(remoteRtpPort);
 
         await rtpTransport.connect({
-            ip: '0.0.0.0',
+            ip: '127.0.0.1',
             port: remoteRtpPort,
             rtcpPort: remoteRtcpPort,
         });
@@ -77,6 +78,11 @@ export class Recording {
             rtpCapabilities,
             paused: true,
         });
+
+        setTimeout(async () => {
+            await rtpConsumer.resume();
+            await rtpConsumer.requestKeyFrame();
+        }, 1000);
 
         return {
             remoteRtpPort,

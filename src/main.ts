@@ -37,7 +37,7 @@ const httpsOptions = {
 
     app.useWebSocketAdapter(redisIoAdapter);
 
-    await app.listen(PORT, '0.0.0.0', () => {
+    await app.listen(PORT, () => {
         console.log(`APP started on port ${PORT}`);
     });
 }());

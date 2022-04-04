@@ -7,8 +7,8 @@ class Transport {
     get plainRtpTransport() {
         return {
             listenIp: {
-                ip: '0.0.0.0',
-                announcedIp: process.env.IP || ip.address(),
+                ip: '127.0.0.1',
+                announcedIp: undefined,
             },
             rtcpMux: false,
             comedia: false,
@@ -19,8 +19,8 @@ class Transport {
         return {
             listenIps: [
                 {
-                    ip: '0.0.0.0',
-                    announcedIp: process.env.IP || ip.address(),
+                    ip: '127.0.0.1',
+                    announcedIp: undefined,
                 },
             ],
             enableUdp: true,
