@@ -3,7 +3,7 @@ import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
+import { AppModule } from './modules/app.module';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
 import AllExceptionsFilter from './core/filters/all-exeption.filter';
 import BaseWsExceptionFilter from './core/filters/ws-exceptions.filter';
@@ -37,7 +37,7 @@ const httpsOptions = {
 
     app.useWebSocketAdapter(redisIoAdapter);
 
-    await app.listen(PORT, () => {
+    await app.listen(PORT, '0.0.0.0', () => {
         console.log(`APP started on port ${PORT}`);
     });
 }());

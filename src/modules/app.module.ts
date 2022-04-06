@@ -8,7 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
 // eslint-disable-next-line import/extensions
-import { config } from './config/configuration';
+import { config } from '../config/configuration';
 import { RoomModule } from './room/room.module';
 
 @Module({
@@ -24,7 +24,7 @@ import { RoomModule } from './room/room.module';
             load: [config],
         }),
         ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '..', 'client', 'public'),
+            rootPath: join(__dirname, '..', '..', 'client', 'public'),
         }),
         EventsModule,
         RoomModule,

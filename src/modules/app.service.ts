@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
     getInfo() {
         // eslint-disable-next-line global-require
-        const { version, description } = require('../package.json');
+        const { version, description } = require('../../package.json');
 
         return {
             version,

@@ -17,7 +17,7 @@ export class RoomService {
         return this.roomModel.deleteOne(deleteRoomDto);
     }
 
-    create(createRoomDto: CreateRoomDto) {
+    create(createRoomDto: CreateRoomDto): Promise<RoomDocument> {
         return this.roomModel.create({
             name: createRoomDto.roomName,
         });

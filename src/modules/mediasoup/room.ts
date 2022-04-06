@@ -9,8 +9,17 @@ const producerTransports = new Map();
 const consumerTransports = new Map();
 
 export class Room {
-    clients: [] = [];
+    /**
+     * @type {string[]} list of socket session ids
+     */
+    clients: string[] = [];
 
+    /**
+     * A router enables injection, selection and forwarding
+     * of media streams through Transport instances created on it.
+     *
+     * @type {null| types.Router}
+     */
     router: null | types.Router = null;
 
     constructor(roomId: string) {

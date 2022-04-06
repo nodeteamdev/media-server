@@ -1,27 +1,47 @@
-import { spawn } from 'child_process';
+import { spawn, ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { Logger } from '@nestjs/common';
 
 import { Readable } from 'stream';
 import { join } from 'path';
+import { types } from 'mediasoup';
 import { SDP } from './sdp';
 
+/**
+ * @class FFmpeg
+ * @classdesc FFmpeg wrapper.
+ * @extends EventEmitter
+ */
 export class FFmpeg {
     private logger = new Logger(FFmpeg.name);
 
-    rtpParameters: any;
+    rtpParameters: types.RtpParameters;
 
-    process: any = null;
+    process: ChildProcess;
 
     observer: EventEmitter;
 
-    constructor(rtpParameters) {
+    recordName: string;
+
+    /**
+     * @constructor
+     * @param {string} recordName name for new video file to be created
+     * @param {types.RtpParameters} rtpParameters RTP parameters
+     */
+    constructor(rtpParameters, recordName: string) {
         this.rtpParameters = rtpParameters;
         this.observer = new EventEmitter();
+        this.recordName = recordName;
+
         this._createProcess();
     }
 
-    convertStringToStream(stringToConvert: string) {
+    /**
+     * @private
+     * @method convertStringToStream
+     * @description convert SDP string to stream
+     */
+    private convertStringToStream(stringToConvert: string) {
         const stream = new Readable();
         stream._read = () => {};
         stream.push(stringToConvert);
@@ -30,6 +50,11 @@ export class FFmpeg {
         return stream;
     }
 
+    /**
+     * @private
+     * @method _createProcess
+     * @description Creates FFmpeg process.
+     */
     _createProcess() {
         const sdpString = SDP.createSdpText(this.rtpParameters);
         const sdpStream = this.convertStringToStream(sdpString);
@@ -84,7 +109,7 @@ export class FFmpeg {
     get _commandArgs() {
         let commandArgs = [
             '-loglevel',
-            'trace',
+            'debug',
             '-protocol_whitelist',
             'pipe,udp,rtp',
             '-fflags',
@@ -101,7 +126,7 @@ export class FFmpeg {
         commandArgs = commandArgs.concat(this._audioArgs);
 
         commandArgs = commandArgs.concat([
-            join(__dirname, '..', '..', 'files', `${this.rtpParameters.recordName}.webm`),
+            join(__dirname, '..', '..', '..', 'files', `${this.recordName}.webm`),
         ]);
 
         this.logger.debug('commandArgs', commandArgs);

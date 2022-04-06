@@ -1,14 +1,24 @@
-import * as ip from 'ip';
 import { Logger } from '@nestjs/common';
+import { Address } from './address';
 
 class Transport {
     private logger = new Logger(Transport.name);
 
+    /**
+     * @returns {
+     *     listenIp: {
+     *         ip: string,
+     *         announcedIp: string,
+     *     },
+     *     rtcpMux: boolean,
+     *     comedia: boolean,
+     * }
+     */
     get plainRtpTransport() {
         return {
             listenIp: {
-                ip: '127.0.0.1',
-                announcedIp: undefined,
+                ip: '0.0.0.0',
+                announcedIp: Address.getIPv4(),
             },
             rtcpMux: false,
             comedia: false,
@@ -19,8 +29,8 @@ class Transport {
         return {
             listenIps: [
                 {
-                    ip: '127.0.0.1',
-                    announcedIp: undefined,
+                    ip: '0.0.0.0',
+                    announcedIp: Address.getIPv4(),
                 },
             ],
             enableUdp: true,

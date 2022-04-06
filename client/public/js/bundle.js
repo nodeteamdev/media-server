@@ -15628,9 +15628,9 @@ var grammar = module.exports = {
     // o=- 20518 0 IN IP4 203.0.113.1
     // NB: sessionId will be a String in most cases because it is huge
     name: 'origin',
-    reg: /^(\S*) (\d*) (\d*) (\S*) IP(\d) (\S*)/,
+    reg: /^(\S*) (\d*) (\d*) (\S*) Address(\d) (\S*)/,
     names: ['username', 'sessionId', 'sessionVersion', 'netType', 'ipVer', 'address'],
-    format: '%s %s %d %s IP%d %s'
+    format: '%s %s %d %s Address%d %s'
   }],
   // default parsing of these only (though some of these feel outdated)
   s: [{ name: 'name' }],
@@ -15651,9 +15651,9 @@ var grammar = module.exports = {
   c: [{
     // c=IN IP4 10.47.197.26
     name: 'connection',
-    reg: /^IN IP(\d) (\S*)/,
+    reg: /^IN Address(\d) (\S*)/,
     names: ['version', 'ip'],
-    format: 'IN IP%d %s'
+    format: 'IN Address%d %s'
   }],
   b: [{
     // b=AS:4000
@@ -15701,11 +15701,11 @@ var grammar = module.exports = {
     {
       // a=rtcp:65179 IN IP4 193.84.77.194
       name: 'rtcp',
-      reg: /^rtcp:(\d*)(?: (\S*) IP(\d) (\S*))?/,
+      reg: /^rtcp:(\d*)(?: (\S*) Address(\d) (\S*))?/,
       names: ['port', 'netType', 'ipVer', 'address'],
       format: function (o) {
         return (o.address != null)
-          ? 'rtcp:%d %s IP%d %s'
+          ? 'rtcp:%d %s Address%d %s'
           : 'rtcp:%d';
       }
     },

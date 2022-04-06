@@ -1,27 +1,37 @@
-import * as ip from 'ip';
 import { Room } from './room';
 import { FFmpeg } from './ffmpeg';
 import Transport from './transport';
+import { Address } from './address';
 
 export class Recording {
     recordName: string;
 
-    recordInfo: any;
+    recordInfo: { audio: any, video: any };
 
-    process: any;
+    process: FFmpeg;
 
     remotePorts: number[] = [];
 
     constructor() {
-        this.recordName = this.generateRandomFileName();
+        this.recordName = Recording.generateRandomFileName();
         this.recordInfo = {
-            recordName: this.recordName,
+            audio: null,
+            video: null,
         };
     }
 
-    private generateRandomFileName() {
+    getProcess() {
+        return new FFmpeg(this.recordInfo, this.recordName);
+    }
+
+    private static generateRandomFileName() {
         return `recording-${Math.floor(Math.random() * 100000)}`;
     }
+
+    /**
+     * @TODO: Implement stop recording
+     */
+    async stopRecording() {}
 
     async startRecord(roomId) {
         const videoProducer = Room.getVideoProducer(roomId);
@@ -30,13 +40,15 @@ export class Recording {
         this.recordInfo.video = await this.publishProducerRtpStream(roomId, videoProducer.producer);
         this.recordInfo.audio = await this.publishProducerRtpStream(roomId, audioProducer.producer);
 
+        setTimeout(async () => {
+            await this.recordInfo.video.rtpConsumer.resume();
+            await this.recordInfo.video.rtpConsumer.requestKeyFrame();
+
+            await this.recordInfo.audio.rtpConsumer.resume();
+            await this.recordInfo.audio.rtpConsumer.requestKeyFrame();
+        }, 1000);
+
         this.process = this.getProcess();
-    }
-
-    getProcess() {
-        const ffmpeg = new FFmpeg(this.recordInfo);
-
-        return ffmpeg;
     }
 
     getRandomPort() {
@@ -47,6 +59,7 @@ export class Recording {
     }
 
     async publishProducerRtpStream(roomId, producer) {
+        const codecs = [];
         const router = Room.getRouter(roomId);
 
         const rtpTransport = await Transport.createPlainRtpTransport(router);
@@ -57,16 +70,16 @@ export class Recording {
         this.remotePorts.push(remoteRtpPort);
 
         await rtpTransport.connect({
-            ip: '127.0.0.1',
+            ip: Address.getIPv4(),
             port: remoteRtpPort,
             rtcpPort: remoteRtcpPort,
         });
 
-        const codecs = [];
-        const routerCodec = router.rtpCapabilities.codecs.find(
-            (codec) => codec.kind === producer.kind,
+        codecs.push(
+            router.rtpCapabilities.codecs.find(
+                (codec) => codec.kind === producer.kind,
+            ),
         );
-        codecs.push(routerCodec);
 
         const rtpCapabilities = {
             codecs,
@@ -79,12 +92,8 @@ export class Recording {
             paused: true,
         });
 
-        setTimeout(async () => {
-            await rtpConsumer.resume();
-            await rtpConsumer.requestKeyFrame();
-        }, 1000);
-
         return {
+            rtpConsumer,
             remoteRtpPort,
             remoteRtcpPort,
             localRtcpPort: rtpTransport.rtcpTuple ? rtpTransport.rtcpTuple.localPort : undefined,

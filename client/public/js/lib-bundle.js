@@ -5699,7 +5699,7 @@ exports.profileLevelIdToString = function(profile_level_id)
 
 /**
  * Parse profile level id that is represented as a string of 3 hex bytes
- * contained in an Sdp key-value map. A default profile level id will be
+ * contained in an SDP key-value map. A default profile level id will be
  * returned if the profile-level-id key is missing. Nothing will be returned if
  * the key is present but the string is invalid.
  *
@@ -5739,7 +5739,7 @@ exports.isSameProfile = function(params1 = {}, params2 = {})
 };
 
 /**
- * Generate codec parameters that will be used as answer in an Sdp negotiation
+ * Generate codec parameters that will be used as answer in an SDP negotiation
  * based on local supported parameters and remote offered parameters. Both
  * local_supported_params and remote_offered_params represent sendrecv media
  * descriptions, i.e they are a mix of both encode and decode capabilities. In
@@ -8087,7 +8087,7 @@ class Chrome55 extends HandlerInterface_1.HandlerInterface {
     }
     async restartIce(iceParameters) {
         logger.debug('restartIce()');
-        // Provide the remote Sdp handler with new remote ICE parameters.
+        // Provide the remote SDP handler with new remote ICE parameters.
         this._remoteSdp.updateIceParameters(iceParameters);
         if (!this._transportReady)
             return;
@@ -8253,7 +8253,7 @@ class Chrome55 extends HandlerInterface_1.HandlerInterface {
         // Increase next id.
         this._nextSendSctpStreamId =
             ++this._nextSendSctpStreamId % SCTP_NUM_STREAMS.MIS;
-        // If this is the first DataChannel we need to create the Sdp answer with
+        // If this is the first DataChannel we need to create the SDP answer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             const offer = await this._pc.createOffer();
@@ -8384,7 +8384,7 @@ class Chrome55 extends HandlerInterface_1.HandlerInterface {
         };
         logger.debug('receiveDataChannel() [options:%o]', options);
         const dataChannel = this._pc.createDataChannel(label, options);
-        // If this is the first DataChannel we need to create the Sdp offer with
+        // If this is the first DataChannel we need to create the SDP offer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             this._remoteSdp.receiveSctpAssociation({ oldDataChannelSpec: true });
@@ -8412,7 +8412,7 @@ class Chrome55 extends HandlerInterface_1.HandlerInterface {
         const dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject });
         // Set our DTLS role.
         dtlsParameters.role = localDtlsRole;
-        // Update the remote DTLS role in the Sdp.
+        // Update the remote DTLS role in the SDP.
         this._remoteSdp.updateDtlsRole(localDtlsRole === 'client' ? 'server' : 'client');
         // Need to tell the remote transport about our parameters.
         await this.safeEmitAsPromise('@connect', { dtlsParameters });
@@ -8601,7 +8601,7 @@ class Chrome67 extends HandlerInterface_1.HandlerInterface {
     }
     async restartIce(iceParameters) {
         logger.debug('restartIce()');
-        // Provide the remote Sdp handler with new remote ICE parameters.
+        // Provide the remote SDP handler with new remote ICE parameters.
         this._remoteSdp.updateIceParameters(iceParameters);
         if (!this._transportReady)
             return;
@@ -8809,7 +8809,7 @@ class Chrome67 extends HandlerInterface_1.HandlerInterface {
         // Increase next id.
         this._nextSendSctpStreamId =
             ++this._nextSendSctpStreamId % SCTP_NUM_STREAMS.MIS;
-        // If this is the first DataChannel we need to create the Sdp answer with
+        // If this is the first DataChannel we need to create the SDP answer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             const offer = await this._pc.createOffer();
@@ -8946,7 +8946,7 @@ class Chrome67 extends HandlerInterface_1.HandlerInterface {
         };
         logger.debug('receiveDataChannel() [options:%o]', options);
         const dataChannel = this._pc.createDataChannel(label, options);
-        // If this is the first DataChannel we need to create the Sdp offer with
+        // If this is the first DataChannel we need to create the SDP offer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             this._remoteSdp.receiveSctpAssociation({ oldDataChannelSpec: true });
@@ -8974,7 +8974,7 @@ class Chrome67 extends HandlerInterface_1.HandlerInterface {
         const dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject });
         // Set our DTLS role.
         dtlsParameters.role = localDtlsRole;
-        // Update the remote DTLS role in the Sdp.
+        // Update the remote DTLS role in the SDP.
         this._remoteSdp.updateDtlsRole(localDtlsRole === 'client' ? 'server' : 'client');
         // Need to tell the remote transport about our parameters.
         await this.safeEmitAsPromise('@connect', { dtlsParameters });
@@ -9157,7 +9157,7 @@ class Chrome70 extends HandlerInterface_1.HandlerInterface {
     }
     async restartIce(iceParameters) {
         logger.debug('restartIce()');
-        // Provide the remote Sdp handler with new remote ICE parameters.
+        // Provide the remote SDP handler with new remote ICE parameters.
         this._remoteSdp.updateIceParameters(iceParameters);
         if (!this._transportReady)
             return;
@@ -9378,7 +9378,7 @@ class Chrome70 extends HandlerInterface_1.HandlerInterface {
         // Increase next id.
         this._nextSendSctpStreamId =
             ++this._nextSendSctpStreamId % SCTP_NUM_STREAMS.MIS;
-        // If this is the first DataChannel we need to create the Sdp answer with
+        // If this is the first DataChannel we need to create the SDP answer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             const offer = await this._pc.createOffer();
@@ -9515,7 +9515,7 @@ class Chrome70 extends HandlerInterface_1.HandlerInterface {
         };
         logger.debug('receiveDataChannel() [options:%o]', options);
         const dataChannel = this._pc.createDataChannel(label, options);
-        // If this is the first DataChannel we need to create the Sdp offer with
+        // If this is the first DataChannel we need to create the SDP offer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             this._remoteSdp.receiveSctpAssociation();
@@ -9543,7 +9543,7 @@ class Chrome70 extends HandlerInterface_1.HandlerInterface {
         const dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject });
         // Set our DTLS role.
         dtlsParameters.role = localDtlsRole;
-        // Update the remote DTLS role in the Sdp.
+        // Update the remote DTLS role in the SDP.
         this._remoteSdp.updateDtlsRole(localDtlsRole === 'client' ? 'server' : 'client');
         // Need to tell the remote transport about our parameters.
         await this.safeEmitAsPromise('@connect', { dtlsParameters });
@@ -9726,7 +9726,7 @@ class Chrome74 extends HandlerInterface_1.HandlerInterface {
     }
     async restartIce(iceParameters) {
         logger.debug('restartIce()');
-        // Provide the remote Sdp handler with new remote ICE parameters.
+        // Provide the remote SDP handler with new remote ICE parameters.
         this._remoteSdp.updateIceParameters(iceParameters);
         if (!this._transportReady)
             return;
@@ -9810,12 +9810,12 @@ class Chrome74 extends HandlerInterface_1.HandlerInterface {
         // Set RTCP CNAME.
         sendingRtpParameters.rtcp.cname =
             sdpCommonUtils.getCname({ offerMediaObject });
-        // Set RTP encodings by parsing the Sdp offer if no encodings are given.
+        // Set RTP encodings by parsing the SDP offer if no encodings are given.
         if (!encodings) {
             sendingRtpParameters.encodings =
                 sdpUnifiedPlanUtils.getRtpEncodings({ offerMediaObject });
         }
-        // Set RTP encodings by parsing the Sdp offer and complete them with given
+        // Set RTP encodings by parsing the SDP offer and complete them with given
         // one if just a single encoding has been given.
         else if (encodings.length === 1) {
             let newEncodings = sdpUnifiedPlanUtils.getRtpEncodings({ offerMediaObject });
@@ -9937,7 +9937,7 @@ class Chrome74 extends HandlerInterface_1.HandlerInterface {
         // Increase next id.
         this._nextSendSctpStreamId =
             ++this._nextSendSctpStreamId % SCTP_NUM_STREAMS.MIS;
-        // If this is the first DataChannel we need to create the Sdp answer with
+        // If this is the first DataChannel we need to create the SDP answer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             const offer = await this._pc.createOffer();
@@ -10098,7 +10098,7 @@ class Chrome74 extends HandlerInterface_1.HandlerInterface {
         };
         logger.debug('receiveDataChannel() [options:%o]', options);
         const dataChannel = this._pc.createDataChannel(label, options);
-        // If this is the first DataChannel we need to create the Sdp offer with
+        // If this is the first DataChannel we need to create the SDP offer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             this._remoteSdp.receiveSctpAssociation();
@@ -10126,7 +10126,7 @@ class Chrome74 extends HandlerInterface_1.HandlerInterface {
         const dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject });
         // Set our DTLS role.
         dtlsParameters.role = localDtlsRole;
-        // Update the remote DTLS role in the Sdp.
+        // Update the remote DTLS role in the SDP.
         this._remoteSdp.updateDtlsRole(localDtlsRole === 'client' ? 'server' : 'client');
         // Need to tell the remote transport about our parameters.
         await this.safeEmitAsPromise('@connect', { dtlsParameters });
@@ -10747,7 +10747,7 @@ class Firefox60 extends HandlerInterface_1.HandlerInterface {
     }
     async restartIce(iceParameters) {
         logger.debug('restartIce()');
-        // Provide the remote Sdp handler with new remote ICE parameters.
+        // Provide the remote SDP handler with new remote ICE parameters.
         this._remoteSdp.updateIceParameters(iceParameters);
         if (!this._transportReady)
             return;
@@ -10823,12 +10823,12 @@ class Firefox60 extends HandlerInterface_1.HandlerInterface {
         // Set RTCP CNAME.
         sendingRtpParameters.rtcp.cname =
             sdpCommonUtils.getCname({ offerMediaObject });
-        // Set RTP encodings by parsing the Sdp offer if no encodings are given.
+        // Set RTP encodings by parsing the SDP offer if no encodings are given.
         if (!encodings) {
             sendingRtpParameters.encodings =
                 sdpUnifiedPlanUtils.getRtpEncodings({ offerMediaObject });
         }
-        // Set RTP encodings by parsing the Sdp offer and complete them with given
+        // Set RTP encodings by parsing the SDP offer and complete them with given
         // one if just a single encoding has been given.
         else if (encodings.length === 1) {
             const newEncodings = sdpUnifiedPlanUtils.getRtpEncodings({ offerMediaObject });
@@ -10951,7 +10951,7 @@ class Firefox60 extends HandlerInterface_1.HandlerInterface {
         // Increase next id.
         this._nextSendSctpStreamId =
             ++this._nextSendSctpStreamId % SCTP_NUM_STREAMS.MIS;
-        // If this is the first DataChannel we need to create the Sdp answer with
+        // If this is the first DataChannel we need to create the SDP answer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             const offer = await this._pc.createOffer();
@@ -11101,7 +11101,7 @@ class Firefox60 extends HandlerInterface_1.HandlerInterface {
         };
         logger.debug('receiveDataChannel() [options:%o]', options);
         const dataChannel = this._pc.createDataChannel(label, options);
-        // If this is the first DataChannel we need to create the Sdp offer with
+        // If this is the first DataChannel we need to create the SDP offer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             this._remoteSdp.receiveSctpAssociation();
@@ -11126,7 +11126,7 @@ class Firefox60 extends HandlerInterface_1.HandlerInterface {
         const dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject });
         // Set our DTLS role.
         dtlsParameters.role = localDtlsRole;
-        // Update the remote DTLS role in the Sdp.
+        // Update the remote DTLS role in the SDP.
         this._remoteSdp.updateDtlsRole(localDtlsRole === 'client' ? 'server' : 'client');
         // Need to tell the remote transport about our parameters.
         await this.safeEmitAsPromise('@connect', { dtlsParameters });
@@ -11340,7 +11340,7 @@ class ReactNative extends HandlerInterface_1.HandlerInterface {
     }
     async restartIce(iceParameters) {
         logger.debug('restartIce()');
-        // Provide the remote Sdp handler with new remote ICE parameters.
+        // Provide the remote SDP handler with new remote ICE parameters.
         this._remoteSdp.updateIceParameters(iceParameters);
         if (!this._transportReady)
             return;
@@ -11508,7 +11508,7 @@ class ReactNative extends HandlerInterface_1.HandlerInterface {
         // Increase next id.
         this._nextSendSctpStreamId =
             ++this._nextSendSctpStreamId % SCTP_NUM_STREAMS.MIS;
-        // If this is the first DataChannel we need to create the Sdp answer with
+        // If this is the first DataChannel we need to create the SDP answer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             const offer = await this._pc.createOffer();
@@ -11647,7 +11647,7 @@ class ReactNative extends HandlerInterface_1.HandlerInterface {
         };
         logger.debug('receiveDataChannel() [options:%o]', options);
         const dataChannel = this._pc.createDataChannel(label, options);
-        // If this is the first DataChannel we need to create the Sdp offer with
+        // If this is the first DataChannel we need to create the SDP offer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             this._remoteSdp.receiveSctpAssociation({ oldDataChannelSpec: true });
@@ -11675,7 +11675,7 @@ class ReactNative extends HandlerInterface_1.HandlerInterface {
         const dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject });
         // Set our DTLS role.
         dtlsParameters.role = localDtlsRole;
-        // Update the remote DTLS role in the Sdp.
+        // Update the remote DTLS role in the SDP.
         this._remoteSdp.updateDtlsRole(localDtlsRole === 'client' ? 'server' : 'client');
         // Need to tell the remote transport about our parameters.
         await this.safeEmitAsPromise('@connect', { dtlsParameters });
@@ -11863,7 +11863,7 @@ class Safari11 extends HandlerInterface_1.HandlerInterface {
     }
     async restartIce(iceParameters) {
         logger.debug('restartIce()');
-        // Provide the remote Sdp handler with new remote ICE parameters.
+        // Provide the remote SDP handler with new remote ICE parameters.
         this._remoteSdp.updateIceParameters(iceParameters);
         if (!this._transportReady)
             return;
@@ -12067,7 +12067,7 @@ class Safari11 extends HandlerInterface_1.HandlerInterface {
         // Increase next id.
         this._nextSendSctpStreamId =
             ++this._nextSendSctpStreamId % SCTP_NUM_STREAMS.MIS;
-        // If this is the first DataChannel we need to create the Sdp answer with
+        // If this is the first DataChannel we need to create the SDP answer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             const offer = await this._pc.createOffer();
@@ -12201,7 +12201,7 @@ class Safari11 extends HandlerInterface_1.HandlerInterface {
         };
         logger.debug('receiveDataChannel() [options:%o]', options);
         const dataChannel = this._pc.createDataChannel(label, options);
-        // If this is the first DataChannel we need to create the Sdp offer with
+        // If this is the first DataChannel we need to create the SDP offer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             this._remoteSdp.receiveSctpAssociation({ oldDataChannelSpec: true });
@@ -12229,7 +12229,7 @@ class Safari11 extends HandlerInterface_1.HandlerInterface {
         const dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject });
         // Set our DTLS role.
         dtlsParameters.role = localDtlsRole;
-        // Update the remote DTLS role in the Sdp.
+        // Update the remote DTLS role in the SDP.
         this._remoteSdp.updateDtlsRole(localDtlsRole === 'client' ? 'server' : 'client');
         // Need to tell the remote transport about our parameters.
         await this.safeEmitAsPromise('@connect', { dtlsParameters });
@@ -12409,7 +12409,7 @@ class Safari12 extends HandlerInterface_1.HandlerInterface {
     }
     async restartIce(iceParameters) {
         logger.debug('restartIce()');
-        // Provide the remote Sdp handler with new remote ICE parameters.
+        // Provide the remote SDP handler with new remote ICE parameters.
         this._remoteSdp.updateIceParameters(iceParameters);
         if (!this._transportReady)
             return;
@@ -12594,7 +12594,7 @@ class Safari12 extends HandlerInterface_1.HandlerInterface {
         // Increase next id.
         this._nextSendSctpStreamId =
             ++this._nextSendSctpStreamId % SCTP_NUM_STREAMS.MIS;
-        // If this is the first DataChannel we need to create the Sdp answer with
+        // If this is the first DataChannel we need to create the SDP answer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             const offer = await this._pc.createOffer();
@@ -12752,7 +12752,7 @@ class Safari12 extends HandlerInterface_1.HandlerInterface {
         };
         logger.debug('receiveDataChannel() [options:%o]', options);
         const dataChannel = this._pc.createDataChannel(label, options);
-        // If this is the first DataChannel we need to create the Sdp offer with
+        // If this is the first DataChannel we need to create the SDP offer with
         // m=application section.
         if (!this._hasDataChannelMediaSection) {
             this._remoteSdp.receiveSctpAssociation();
@@ -12780,7 +12780,7 @@ class Safari12 extends HandlerInterface_1.HandlerInterface {
         const dtlsParameters = sdpCommonUtils.extractDtlsParameters({ sdpObject: localSdpObject });
         // Set our DTLS role.
         dtlsParameters.role = localDtlsRole;
-        // Update the remote DTLS role in the Sdp.
+        // Update the remote DTLS role in the SDP.
         this._remoteSdp.updateDtlsRole(localDtlsRole === 'client' ? 'server' : 'client');
         // Need to tell the remote transport about our parameters.
         await this.safeEmitAsPromise('@connect', { dtlsParameters });
@@ -13438,7 +13438,7 @@ const MediaSection_1 = require("./MediaSection");
 const logger = new Logger_1.Logger('RemoteSdp');
 class RemoteSdp {
     constructor({ iceParameters, iceCandidates, dtlsParameters, sctpParameters, plainRtpParameters, planB = false }) {
-        // MediaSection instances with same order as in the Sdp.
+        // MediaSection instances with same order as in the SDP.
         this._mediaSections = [];
         // MediaSection indices indexed by MID.
         this._midToIndex = new Map();
@@ -13479,7 +13479,7 @@ class RemoteSdp {
                 };
             this._sdpObject.groups = [{ type: 'BUNDLE', mids: '' }];
         }
-        // If there are plain RPT parameters, override Sdp origin.
+        // If there are plain RPT parameters, override SDP origin.
         if (plainRtpParameters) {
             this._sdpObject.origin.address = plainRtpParameters.ip;
             this._sdpObject.origin.ipVer = plainRtpParameters.ipVersion;
@@ -13630,7 +13630,7 @@ class RemoteSdp {
         this._addMediaSection(mediaSection);
     }
     getSdp() {
-        // Increase Sdp version.
+        // Increase SDP version.
         this._sdpObject.origin.sessionVersion++;
         return sdpTransform.write(this._sdpObject);
     }
@@ -13641,7 +13641,7 @@ class RemoteSdp {
         this._mediaSections.push(newMediaSection);
         // Add to the map.
         this._midToIndex.set(newMediaSection.mid, this._mediaSections.length - 1);
-        // Add to the Sdp object.
+        // Add to the SDP object.
         this._sdpObject.media.push(newMediaSection.getObject());
         // Regenerate BUNDLE mids.
         this._regenerateBundleMids();
@@ -13659,7 +13659,7 @@ class RemoteSdp {
             // Update the map.
             this._midToIndex.delete(oldMediaSection.mid);
             this._midToIndex.set(newMediaSection.mid, idx);
-            // Update the Sdp object.
+            // Update the SDP object.
             this._sdpObject.media[idx] = newMediaSection.getObject();
             // Regenerate BUNDLE mids.
             this._regenerateBundleMids();
@@ -13671,7 +13671,7 @@ class RemoteSdp {
             }
             // Replace the index in the vector with the new media section.
             this._mediaSections[idx] = newMediaSection;
-            // Update the Sdp object.
+            // Update the SDP object.
             this._sdpObject.media[idx] = newMediaSection.getObject();
         }
     }
@@ -13836,7 +13836,7 @@ function getCname({ offerMediaObject }) {
 }
 exports.getCname = getCname;
 /**
- * Apply codec parameters in the given Sdp m= section answer based on the
+ * Apply codec parameters in the given SDP m= section answer based on the
  * given RTP parameters of an offer.
  */
 function applyCodecParameters({ offerRtpParameters, answerMediaObject }) {
@@ -13933,7 +13933,7 @@ function getRtpEncodings({ offerMediaObject, track }) {
 }
 exports.getRtpEncodings = getRtpEncodings;
 /**
- * Adds multi-ssrc based simulcast into the given Sdp media section offer.
+ * Adds multi-ssrc based simulcast into the given SDP media section offer.
  */
 function addLegacySimulcast({ offerMediaObject, track, numStreams }) {
     if (numStreams <= 1)
@@ -14070,7 +14070,7 @@ function getRtpEncodings({ offerMediaObject }) {
 }
 exports.getRtpEncodings = getRtpEncodings;
 /**
- * Adds multi-ssrc based simulcast into the given Sdp media section offer.
+ * Adds multi-ssrc based simulcast into the given SDP media section offer.
  */
 function addLegacySimulcast({ offerMediaObject, numStreams }) {
     if (numStreams <= 1)
@@ -14806,7 +14806,7 @@ function getSendingRtpParameters(kind, extendedRtpCapabilities) {
 }
 exports.getSendingRtpParameters = getSendingRtpParameters;
 /**
- * Generate RTP parameters of the given kind suitable for the remote Sdp answer.
+ * Generate RTP parameters of the given kind suitable for the remote SDP answer.
  */
 function getSendingRemoteRtpParameters(kind, extendedRtpCapabilities) {
     const rtpParameters = {

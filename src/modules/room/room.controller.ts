@@ -5,6 +5,7 @@ import {
 import { RoomService } from './room.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { DeleteRoomDto } from './dto/delete-room.dto';
+import { RoomDocument } from './schemas/room.schema';
 
 @Controller('room')
 export class RoomController {
@@ -28,7 +29,7 @@ export class RoomController {
 
   @Post('/create')
   async create(@Body() createRoomDto: CreateRoomDto) {
-      const room = await this.roomService.create(createRoomDto);
+      const room: RoomDocument = await this.roomService.create(createRoomDto);
 
       return {
           data: {

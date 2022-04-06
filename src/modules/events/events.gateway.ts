@@ -14,7 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { types } from 'mediasoup';
 import { Worker } from '../mediasoup/worker';
 import { Room } from '../mediasoup/room';
-import { KIND_TYPE } from '../enums/kind';
+import { KIND_TYPE } from '../../enums/kind';
 import Transport from '../mediasoup/transport';
 import { Recording } from '../mediasoup/recording';
 
